@@ -38,8 +38,11 @@ intellij {
 }
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
   changeNotes("""
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>""")
+    Changelog:
+    <ol>
+      <li>1.0 - Empty plugin</li>
+      <li>2.0 - Added features</li>
+    </ol>""")
 }
 tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "1.8"
