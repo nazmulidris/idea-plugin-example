@@ -16,14 +16,18 @@
 
 <idea-plugin>
   <id>com.developerlife.example.idea-plugin-example</id>
-  <name>Plugin display name here</name>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">
-    YourCompany
+  <name>developerlife example</name>
+  <vendor email="idris@developerlife.com" url="http://developerlife.com">
+    developerlife.com
   </vendor>
 
   <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    This sample plugin does the following things:
+    <ol>
+      <li>One</li>
+      <li>Two</li>
+      <li>Three</li>
+    </ol>
     ]]></description>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
