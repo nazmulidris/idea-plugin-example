@@ -41,17 +41,29 @@
   </extensions>
 
   <actions>
+    <!-- Add SearchOnStackOverflowAction Action to EditorPopupMenu -->
+    <action id="MyPlugin.Editor.SearchOnStackOverflowAction"
+        class="SearchOnStackOverflowAction" text="Search on Stack Overflow"
+        description="Search selected text on Stack Overflow"
+        icon="/icons/ic_stackoverflow.svg">
+      <add-to-group group-id="EditorPopupMenu" anchor="last" />
+      <add-to-group group-id="ConsoleEditorPopupMenu" anchor="last" />
+    </action>
+
     <!-- Create a new Greeting menu -->
     <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
       <add-to-group group-id="MainMenu" anchor="last" />
+
       <!-- Add HelloAction action to the Greeting menu -->
       <action id="MyPlugin.HelloAction" class="HelloAction" text="Hello"
           description="Says hello" icon="/icons/ic_check_circle.svg">
         <add-to-group group-id="MainMenu" anchor="first" />
       </action>
-      <action id="MyPlugin.AskQuestionAction" class="AskQuestionAction"
-          text="Ask Question" description="Opens a browser"
-          icon="/icons/ic_stackoverflow.svg">
+
+      <!-- Add AskQuestionOnStackOverflowAction action to the Greeting menu -->
+      <action id="MyPlugin.AskQuestionOnStackoverflowAction"
+          class="AskQuestionOnStackOverflowAction" text="Ask Question"
+          description="Opens a browser" icon="/icons/ic_stackoverflow.svg">
         <add-to-group group-id="MainMenu" anchor="last" />
       </action>
     </group>

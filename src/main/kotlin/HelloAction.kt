@@ -19,11 +19,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.Messages
 
 class HelloAction : AnAction() {
-  /**
-   * Implement this method to provide your action handler.
-   *
-   * @param event Carries information on the invocation place
-   */
   override fun actionPerformed(event: AnActionEvent) {
     Messages.showMessageDialog(event.project,
                                "Hello World!",
