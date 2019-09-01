@@ -42,5 +42,12 @@
 
   <actions>
     <!-- Add your actions here -->
+    <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
+      <add-to-group group-id="MainMenu" anchor="last" />
+      <action id="MyPlugin.HelloAction" class="HelloAction" text="Hello"
+          description="Says hello" icon="/icons/ic_check_circle.svg">
+        <add-to-group group-id="MainMenu" anchor="last" />
+      </action>
+    </group>
   </actions>
 </idea-plugin>
