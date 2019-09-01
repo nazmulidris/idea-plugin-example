@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-import com.intellij.openapi.util.IconLoader
-import javax.swing.Icon
+import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 
-/**
-Provides programmatic access to the SVG icons, in the `resources`
-folder, eg: `/icons/ic_check_circle.svg`
- */
-interface PluginIcons {
-  val HELLO_ACTION: Icon
-    get() = IconLoader.getIcon("/icons/ic_check_circle.svg")
-  val STACKOVERFLOW_ACTION: Icon
-    get() = IconLoader.getIcon("/icons/ic_stackoverflow.svg")
+class AskQuestionAction : AnAction() {
+  /**
+   * Implement this method to provide your action handler.
+   *
+   * @param e Carries information on the invocation place
+   */
+  override fun actionPerformed(e: AnActionEvent) {
+    BrowserUtil.browse("https://stackoverflow.com/questions/ask")
+  }
+
 }

@@ -11,6 +11,7 @@ Tutorials on writing plugins
 
 - [Simple custom dictionary loader plugin](https://tinyurl.com/y2n8ymsh)
 - [Simple stackoverflow lookup plugin](https://tinyurl.com/y336wul6)
+    - [github repo for this](https://tinyurl.com/y5xwytfj)
 
 Icons
 

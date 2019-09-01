@@ -41,11 +41,17 @@
   </extensions>
 
   <actions>
-    <!-- Add your actions here -->
+    <!-- Create a new Greeting menu -->
     <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
       <add-to-group group-id="MainMenu" anchor="last" />
+      <!-- Add HelloAction action to the Greeting menu -->
       <action id="MyPlugin.HelloAction" class="HelloAction" text="Hello"
           description="Says hello" icon="/icons/ic_check_circle.svg">
+        <add-to-group group-id="MainMenu" anchor="first" />
+      </action>
+      <action id="MyPlugin.AskQuestionAction" class="AskQuestionAction"
+          text="Ask Question" description="Opens a browser"
+          icon="/icons/ic_stackoverflow.svg">
         <add-to-group group-id="MainMenu" anchor="last" />
       </action>
     </group>
