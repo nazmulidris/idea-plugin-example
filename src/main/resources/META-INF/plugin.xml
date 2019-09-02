@@ -61,7 +61,7 @@
       </action>
 
       <!-- Add AskQuestionOnStackOverflowAction action to the Greeting menu -->
-      <action id="MyPlugin.AskQuestionOnStackoverflowAction"
+      <action id="MyPlugin.AskQuestionOnStackOverflowAction"
           class="AskQuestionOnStackOverflowAction" text="Ask Question"
           description="Opens a browser" icon="/icons/ic_stackoverflow.svg">
         <add-to-group group-id="MainMenu" anchor="last" />
