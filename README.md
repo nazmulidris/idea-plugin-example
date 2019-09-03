@@ -8,6 +8,7 @@ JetBrains IDEA docs
 - [List of default icons in IDEA, AllIcons.java](https://tinyurl.com/y4nh4nwu)
 - [IDEA plugin services and components](https://tinyurl.com/y4n4l4wd)
     - [github repo for plugin component & service](https://tinyurl.com/y6o9dlhb)
+- [Details about actions](https://tinyurl.com/yxaoflp6)
 
 Tutorials on writing plugins
 
