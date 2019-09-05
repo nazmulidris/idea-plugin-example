@@ -9,6 +9,7 @@ JetBrains IDEA docs
 - [IDEA plugin services and components](https://tinyurl.com/y4n4l4wd)
     - [github repo for plugin component & service](https://tinyurl.com/y6o9dlhb)
 - [Details about actions](https://tinyurl.com/yxaoflp6)
+- [JetBrains offical code samples for plugins](https://tinyurl.com/y69ufr68)
 
 Tutorials on writing plugins
 
