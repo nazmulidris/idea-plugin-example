@@ -30,6 +30,7 @@ repositories {
 
 dependencies {
   implementation(kotlin("stdlib-jdk8"))
+  implementation(kotlin("reflect"))
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/

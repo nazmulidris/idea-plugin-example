@@ -15,6 +15,7 @@
   -->
 
 <idea-plugin>
+  <!-- Namespace of this plugin. Used in extensions and extension points. -->
   <id>com.developerlife.example.idea-plugin-example</id>
   <name>developerlife example</name>
   <vendor email="idris@developerlife.com" url="http://developerlife.com">
@@ -24,20 +25,34 @@
   <description><![CDATA[
     This sample plugin does the following things:
     <ol>
-      <li>One</li>
-      <li>Two</li>
-      <li>Three</li>
+      <li>Creates an application component named Configurator</li>
+      <li>Provides an extension point named "configuratorRunnable"</li>
+      <li>Loads all the extensions for this extension point</li>
     </ol>
     ]]></description>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+  <!-- Add application component. -->
+  <application-components>
+    <component>
+      <implementation-class>Configurator</implementation-class>
+    </component>
+  </application-components>
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+  <!-- Extension point for the application component above. -->
+  <extensionPoints>
+    <extensionPoint name="configuratorRunnable"
+        interface="java.lang.Runnable" />
+  </extensionPoints>
+
+  <!--
+    Extensions that run when the application component above is initialized.
+  -->
+  <extensions
+      defaultExtensionNs="com.developerlife.example.idea-plugin-example">
+    <configuratorRunnable order="first" implementation="AnInitializer"
+        id="MyPlugin.AnInitializer" />
+    <configuratorRunnable order="last" implementation="AnotherInitializer"
+        id="MyPlugin.AnotherInitializer" />
   </extensions>
 
   <actions>
