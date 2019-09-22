@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.ui.Messages
+package actions
 
-class HelloAction : AnAction() {
-  override fun actionPerformed(event: AnActionEvent) {
-    Messages.showMessageDialog(event.project,
-                               "Hello World!",
-                               "Greeting",
-                               Messages.getInformationIcon())
-  }
+import com.intellij.openapi.util.IconLoader
+import javax.swing.Icon
+
+/**
+Provides programmatic access to the SVG icons, in the `resources`
+folder, eg: `/icons/ic_check_circle.svg`
+ */
+interface PluginIcons {
+  val HELLO_ACTION: Icon
+    get() = IconLoader.getIcon("/icons/ic_check_circle.svg")
+  val STACKOVERFLOW_ACTION: Icon
+    get() = IconLoader.getIcon("/icons/ic_stackoverflow.svg")
 }

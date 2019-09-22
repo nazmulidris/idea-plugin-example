@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+package extensions
+
+import log
+import notify
+
 /**
  * Simply implements an extension named "configuratorRunnable" which has an
  * interface of Runnable.

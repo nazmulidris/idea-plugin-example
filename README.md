@@ -1,6 +1,6 @@
 # References
 
-JetBrains IDEA docs
+Getting started w/ writing your first plugin
 
 - [Writing your first plugin](https://tinyurl.com/y67ygovg)
 - [Organizing and using icons in plugins](https://tinyurl.com/y33rbxst)
@@ -10,6 +10,24 @@ JetBrains IDEA docs
     - [github repo for plugin component & service](https://tinyurl.com/y6o9dlhb)
 - [Details about actions](https://tinyurl.com/yxaoflp6)
 - [JetBrains official code samples for plugins](https://tinyurl.com/y69ufr68)
+
+Extension Points and extensions
+
+- [IDEA docs on extensions and extension points](https://tinyurl.com/y6a4xafo)
+
+Services 
+
+- [IDEA docs on services](https://tinyurl.com/yy9tsyq7)
+
+Notifications
+
+- [IDEA docs on Notifications](https://tinyurl.com/yxkvn4ad)
+- [Code samples](https://tinyurl.com/y45xww6m)
+- [Code samples](https://tinyurl.com/y4zd6t5q)
+
+Logging
+
+- [How to log in IDEA](https://tinyurl.com/y2bll4ph)
 
 Tutorials on writing plugins
 
@@ -22,3 +40,7 @@ Icons
 
 - [Material Design Icons](https://tinyurl.com/y4op6mnt)
 - [SVG resizing](https://tinyurl.com/y6mzgofw)
+
+Git
+
+- [Rebase feature branch to master](https://tinyurl.com/md6v2oc)

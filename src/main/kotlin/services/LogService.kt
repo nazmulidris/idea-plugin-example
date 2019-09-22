@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-/**
- * Simply implements an extension named "configuratorRunnable" which has an
- * interface of Runnable.
- */
-class AnInitializer : Runnable {
-  override fun run() {
-    val className = this::class.simpleName
-    "$className ran".log()
-    Pair("$className", "ran").notify()
-  }
-}
+package services
 
+import com.intellij.openapi.components.ServiceManager
+import notify
+import java.util.concurrent.CopyOnWriteArrayList
+
+object LogService {
+  /**
+   * This is used by IDEA to get a reference to the single instance of this
+   * service (used by [ServiceManager]).
+   */
+  val instance: LogService
+    get() = ServiceManager.getService(LogService::class.java)
+
+  private val messageList = CopyOnWriteArrayList<String>()
+
+  fun add(message: String) {
+    messageList.add(message)
+    Pair("LogService",
+         "add('$message') called, messageList.size= ${messageList.size}")
+        .notify()
+  }
+
+}

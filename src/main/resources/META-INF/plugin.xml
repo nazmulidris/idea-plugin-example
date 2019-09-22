@@ -25,7 +25,7 @@
   <description><![CDATA[
     This sample plugin does the following things:
     <ol>
-      <li>Creates an application component named Configurator</li>
+      <li>Creates an application component named extensionPoints.Configurator</li>
       <li>Provides an extension point named "configuratorRunnable"</li>
       <li>Loads all the extensions for this extension point</li>
     </ol>
@@ -34,7 +34,7 @@
   <!-- Add application component. -->
   <application-components>
     <component>
-      <implementation-class>Configurator</implementation-class>
+      <implementation-class>extensionPoints.Configurator</implementation-class>
     </component>
   </application-components>
 
@@ -44,40 +44,53 @@
         interface="java.lang.Runnable" />
   </extensionPoints>
 
-  <!--
-    Extensions that run when the application component above is initialized.
-  -->
+  <!-- Extensions that run when the application component above is
+  initialized. -->
   <extensions
       defaultExtensionNs="com.developerlife.example.idea-plugin-example">
-    <configuratorRunnable order="first" implementation="AnInitializer"
-        id="MyPlugin.AnInitializer" />
-    <configuratorRunnable order="last" implementation="AnotherInitializer"
-        id="MyPlugin.AnotherInitializer" />
+    <configuratorRunnable order="first"
+        implementation="extensions.AnInitializer"
+        id="MyPlugin.extensions.AnInitializer" />
+    <configuratorRunnable order="last"
+        implementation="extensions.AnotherInitializer"
+        id="MyPlugin.extensions.AnotherInitializer" />
   </extensions>
 
+  <!-- Extension to publish the LogService. -->
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationService serviceImplementation="services.LogService" />
+  </extensions>
+
+  <!-- Add SearchOnStackOverflowAction to both the EditorPopupMenu and
+  ConsoleEditorPopupMenu -->
   <actions>
-    <!-- Add SearchOnStackOverflowAction Action to EditorPopupMenu -->
-    <action id="MyPlugin.Editor.SearchOnStackOverflowAction"
-        class="SearchOnStackOverflowAction" text="Search on Stack Overflow"
+    <action id="MyPlugin.Editor.actions.SearchOnStackOverflowAction"
+        class="actions.SearchOnStackOverflowAction"
+        text="Search on Stack Overflow"
         description="Search selected text on Stack Overflow"
         icon="/icons/ic_stackoverflow.svg">
       <add-to-group group-id="EditorPopupMenu" anchor="last" />
       <add-to-group group-id="ConsoleEditorPopupMenu" anchor="last" />
     </action>
+  </actions>
 
+  <!-- Create a new Greeting menu and add the following to it: HelloAction and
+  AskQuestionOnStackOverflowAction. -->
+  <actions>
     <!-- Create a new Greeting menu -->
     <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
       <add-to-group group-id="MainMenu" anchor="last" />
 
-      <!-- Add HelloAction action to the Greeting menu -->
-      <action id="MyPlugin.HelloAction" class="HelloAction" text="Hello"
-          description="Says hello" icon="/icons/ic_check_circle.svg">
+      <!-- Add HelloAction to the Greeting menu -->
+      <action id="MyPlugin.actions.HelloAction" class="actions.HelloAction"
+          text="Hello" description="Says hello"
+          icon="/icons/ic_check_circle.svg">
         <add-to-group group-id="MainMenu" anchor="first" />
       </action>
 
-      <!-- Add AskQuestionOnStackOverflowAction action to the Greeting menu -->
-      <action id="MyPlugin.AskQuestionOnStackOverflowAction"
-          class="AskQuestionOnStackOverflowAction" text="Ask Question"
+      <!-- Add AskQuestionOnStackOverflowAction to the Greeting menu -->
+      <action id="MyPlugin.actions.AskQuestionOnStackOverflowAction"
+          class="actions.AskQuestionOnStackOverflowAction" text="Ask Question"
           description="Opens a browser" icon="/icons/ic_stackoverflow.svg">
         <add-to-group group-id="MainMenu" anchor="last" />
       </action>

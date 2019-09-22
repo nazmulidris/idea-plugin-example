@@ -1,8 +1,3 @@
-import com.intellij.ide.plugins.PluginManager
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationListener.UrlOpeningListener
-import com.intellij.notification.NotificationType
-
 /*
  * Copyright 2019 Nazmul Idris. All rights reserved.
  *
@@ -19,11 +14,23 @@ import com.intellij.notification.NotificationType
  * limitations under the License.
  */
 
+import com.intellij.ide.plugins.PluginManager
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationListener.UrlOpeningListener
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.components.ServiceManager
+import services.LogService
+
 /**
  * Write this to the idea.log file, located in:
  * $PROJECT_DIR/build/idea-sandbox/system/log
  */
-fun String.log() = PluginManager.getLogger().info(this)
+fun String.log() {
+  PluginManager.getLogger().info("MyPlugin: $this")
+  with(ServiceManager.getService(LogService::class.java)) {
+    add(this@log)
+  }
+}
 
 const val GROUP_DISPAY_ID = "MyPlugin.Group"
 

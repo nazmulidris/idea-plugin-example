@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-import com.intellij.openapi.util.IconLoader
-import javax.swing.Icon
+package extensions
+
+import log
+import notify
 
 /**
-Provides programmatic access to the SVG icons, in the `resources`
-folder, eg: `/icons/ic_check_circle.svg`
+ * Simply implements an extension named "configuratorRunnable" which has an
+ * interface of Runnable.
  */
-interface PluginIcons {
-  val HELLO_ACTION: Icon
-    get() = IconLoader.getIcon("/icons/ic_check_circle.svg")
-  val STACKOVERFLOW_ACTION: Icon
-    get() = IconLoader.getIcon("/icons/ic_stackoverflow.svg")
+class AnInitializer : Runnable {
+  override fun run() {
+    val className = this::class.simpleName
+    "$className ran".log()
+    Pair("$className", "ran").notify()
+  }
 }
+
