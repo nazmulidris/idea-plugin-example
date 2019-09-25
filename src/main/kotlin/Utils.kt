@@ -18,7 +18,6 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationListener.UrlOpeningListener
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.components.ServiceManager
 import services.LogService
 
 /**
@@ -27,9 +26,7 @@ import services.LogService
  */
 fun String.log() {
   PluginManager.getLogger().info("MyPlugin: $this")
-  with(ServiceManager.getService(LogService::class.java)) {
-    add(this@log)
-  }
+  LogService.instance.add(this)
 }
 
 const val GROUP_DISPAY_ID = "MyPlugin.Group"
