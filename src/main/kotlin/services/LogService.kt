@@ -18,6 +18,7 @@ package services
 
 import com.intellij.openapi.components.ServiceManager
 import notify
+import java.awt.EventQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
 object LogService {
@@ -32,8 +33,12 @@ object LogService {
 
   fun add(message: String) {
     messageList.add(message)
+    messageList.add(
+        "LogService: " +
+        if (EventQueue.isDispatchThread()) "Running on EDT" else "Running BGT")
     Pair("LogService",
-         "add('$message') called, messageList.size= ${messageList.size}")
+         "add('$message') called, messageList.size= ${messageList.size}" +
+         "\n${messageList.joinToString(separator = "\n")}")
         .notify()
   }
 
