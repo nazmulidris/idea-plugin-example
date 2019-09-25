@@ -19,7 +19,7 @@ package extensionPoints
 import com.intellij.openapi.extensions.ExtensionPointName
 import log
 import notify
-import java.awt.EventQueue
+import whichThread
 
 /**
  * Create an ExtensionPointName given the namespace of the plugin and the
@@ -43,21 +43,19 @@ object EP_NAME {
 class Configurator {
 
   init {
-    whichThread()
+    dumpThreadInfo()
     val className = this::class.simpleName
     "$className created".log()
     Pair("$className", "created").notify()
   }
 
   init {
-    whichThread()
+    dumpThreadInfo()
     EP_NAME().extensionList.forEach { it.run() }
   }
 
-  private fun whichThread() {
-    Pair("Configurator init",
-         if (EventQueue.isDispatchThread()) "Running on EDT" else "Running BGT")
-        .notify()
+  private fun dumpThreadInfo() {
+    Pair("Configurator init", whichThread()).notify()
   }
 
 }

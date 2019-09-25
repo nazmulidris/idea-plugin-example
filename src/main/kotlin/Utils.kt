@@ -18,6 +18,7 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationListener.UrlOpeningListener
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.ApplicationManager
 import services.LogService
 
 /**
@@ -42,3 +43,11 @@ fun Pair<String, String>.notify() = com.intellij.notification
                          second,
                          NotificationType.INFORMATION,
                          UrlOpeningListener(true)))
+
+/**
+ * [ApplicationManager.getApplication#isDispatchThread] is equivalent to calling
+ * [java.awt.EventQueue.isDispatchThread].
+ */
+fun whichThread(): String =
+    (if (ApplicationManager.getApplication().isDispatchThread) "Running on EDT"
+    else "Running BGT") + "\n${Thread.currentThread().name.take(25)}..."
