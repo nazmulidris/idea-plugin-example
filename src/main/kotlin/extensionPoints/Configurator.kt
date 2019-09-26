@@ -17,7 +17,7 @@
 package extensionPoints
 
 import com.intellij.openapi.extensions.ExtensionPointName
-import log
+import logWithHistory
 import notify
 import whichThread
 
@@ -45,7 +45,7 @@ class Configurator {
   init {
     dumpThreadInfo()
     val className = this::class.simpleName
-    "$className created".log()
+    "$className created".logWithHistory()
     Pair("$className", "created").notify()
   }
 

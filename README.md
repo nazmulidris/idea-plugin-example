@@ -1,3 +1,22 @@
+# Running the project
+
+## LogService and PersistentStateComponent
+
+To find the IDEA log look at the `$PROJECT_DIR/build/idea-sandbox/system/log
+/idea.log` file. A simple command to do this (from the project directory) is:
+
+```bash
+find . -name "idea.log" | xargs tail -f | grep MyPlugin
+```
+
+To find the `"logServiceData.xml"` take a look at the `$PROJECT_DIR/build
+/idea-sandbox/config/options/logServiceData.xml` file. A simple command to do
+ this (from the project directory) is:
+ 
+```bash
+find . -name "logServiceData.xml" | xargs subl -n
+```
+
 # References
 
 Getting started w/ writing your first plugin

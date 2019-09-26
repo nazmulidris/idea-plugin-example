@@ -16,7 +16,7 @@
 
 package extensions
 
-import log
+import logWithHistory
 import notify
 
 /**
@@ -26,7 +26,7 @@ import notify
 class AnInitializer : Runnable {
   override fun run() {
     val className = this::class.simpleName
-    "$className ran".log()
+    "$className ran".logWithHistory()
     Pair("$className", "ran").notify()
   }
 }

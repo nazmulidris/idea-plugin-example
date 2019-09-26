@@ -25,9 +25,15 @@ import services.LogService
  * Write this to the idea.log file, located in:
  * $PROJECT_DIR/build/idea-sandbox/system/log
  */
-fun String.log() {
+fun String.logWithHistory() {
   PluginManager.getLogger().info("MyPlugin: $this")
   LogService.instance.add(this)
+  Pair("LogService", "add('$this') called, ${LogService.instance}").notify()
+}
+
+fun String.logWithoutHistory() {
+  PluginManager.getLogger().info("MyPlugin: $this")
+  Pair("logWithoutHistory", this).notify()
 }
 
 const val GROUP_DISPAY_ID = "MyPlugin.Group"
@@ -50,4 +56,4 @@ fun Pair<String, String>.notify() = com.intellij.notification
  */
 fun whichThread(): String =
     (if (ApplicationManager.getApplication().isDispatchThread) "Running on EDT"
-    else "Running BGT") + "\n${Thread.currentThread().name.take(25)}..."
+    else "Running BGT") + " - ${Thread.currentThread().name.take(25)}..."
