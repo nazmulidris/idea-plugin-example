@@ -27,7 +27,7 @@ import services.LogService
  */
 fun String.logWithHistory() {
   PluginManager.getLogger().info("MyPlugin: $this")
-  LogService.instance.add(this)
+  LogService.instance.addMessage(this)
   Pair("LogService", "add('$this') called, ${LogService.instance}").notify()
 }
 

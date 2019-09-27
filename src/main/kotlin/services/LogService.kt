@@ -25,7 +25,7 @@ import whichThread
 import java.util.concurrent.CopyOnWriteArrayList
 
 @State(name = "LogServiceData", storages = [Storage("logServiceData.xml")])
-object LogService : PersistentStateComponent<LogService.LogServiceState> {
+object LogService : PersistentStateComponent<LogService.State> {
   /**
    * This is used by IDEA to get a reference to the single instance of this
    * service (used by [ServiceManager]).
@@ -33,15 +33,15 @@ object LogService : PersistentStateComponent<LogService.LogServiceState> {
   val instance: LogService
     get() = ServiceManager.getService(LogService::class.java)
 
-  fun add(message: String) {
-    with(ourState.messageList) {
+  fun addMessage(message: String) {
+    with(state.messageList) {
       add(message)
       add("LogService: ${whichThread()}")
     }
   }
 
   override fun toString(): String {
-    return with(ourState.messageList) {
+    return with(state.messageList) {
       "messageList.size=$size" + "\n${joinToString(separator = "\n")}"
     }
   }
@@ -62,35 +62,31 @@ object LogService : PersistentStateComponent<LogService.LogServiceState> {
   // creating the state class with a default constructor), nothing is persisted
   // in the XML. Otherwise, the returned state is serialized in XML and stored.
 
-  private var ourState = LogServiceState()
+  private var state = State()
 
-  /**
-   * [More info](http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html)
-   */
-  data class LogServiceState(val messageList: CopyOnWriteArrayList<String> =
-                                 CopyOnWriteArrayList()
+  data class State(var messageList: CopyOnWriteArrayList<String> =
+                       CopyOnWriteArrayList()
   )
 
   /**
    * Called by IDEA to get the current state of this service, so that it can
    * be saved to persistence.
    */
-  override fun getState(): LogServiceState {
+  override fun getState(): State {
     "IDEA called getState()".logWithoutHistory()
-    return ourState
+    return state
   }
 
   /**
-   * Called by IDEA when new component state is loaded. The
-   * [stateLoadedFromPersistence] object should be used directly, defensive
-   * copying is not required.
+   * Called by IDEA when new component state is loaded. This state object should
+   * be used directly, defensive copying is not required.
    */
-  override fun loadState(stateLoadedFromPersistence: LogServiceState) {
+  override fun loadState(stateLoadedFromPersistence: State) {
     "IDEA called loadState(stateLoadedFromPersistence)".logWithoutHistory()
     stateLoadedFromPersistence.messageList
         .joinToString(separator = ",", prefix = "{", postfix = "}")
         .logWithoutHistory()
-    ourState = stateLoadedFromPersistence
+    state = stateLoadedFromPersistence
   }
 
 }
