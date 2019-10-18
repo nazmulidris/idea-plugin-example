@@ -34,7 +34,8 @@
   <!-- Add application component. -->
   <application-components>
     <component>
-      <implementation-class>extensionPoints.Configurator</implementation-class>
+      <implementation-class>extensionPoints.ConfiguratorComponent
+      </implementation-class>
     </component>
   </application-components>
 

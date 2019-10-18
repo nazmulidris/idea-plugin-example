@@ -16,6 +16,7 @@
 
 package extensionPoints
 
+import com.intellij.openapi.application.Application
 import com.intellij.openapi.extensions.ExtensionPointName
 import logWithHistory
 import notify
@@ -40,7 +41,11 @@ object EP_NAME {
  * the extension point. Note that this class does not have to implement any
  * IntelliJ platform interfaces.
  */
-class Configurator {
+class ConfiguratorComponent(val application: Application) {
+
+  init {
+    Pair("ConfiguratorComponent init", "application instance injected").notify()
+  }
 
   init {
     dumpThreadInfo()
@@ -55,7 +60,7 @@ class Configurator {
   }
 
   private fun dumpThreadInfo() {
-    Pair("Configurator init", whichThread()).notify()
+    Pair("ConfiguratorComponent init", whichThread()).notify()
   }
 
 }
