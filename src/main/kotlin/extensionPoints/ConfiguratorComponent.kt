@@ -29,7 +29,8 @@ import whichThread
  * it is the namespace of the plugin itself.
  */
 object EP_NAME {
-  private const val nameSpace = "com.developerlife.example.idea-plugin-example"
+  private const val nameSpace =
+      "com.developerlife.example.idea-plugin-example"
   private const val name = "configuratorRunnable"
   private const val fullyQualifiedName = "$nameSpace.$name"
   operator fun invoke(): ExtensionPointName<Runnable> =
@@ -44,7 +45,10 @@ object EP_NAME {
 class ConfiguratorComponent(val application: Application) {
 
   init {
-    Pair("ConfiguratorComponent init", "application instance injected").notify()
+    Pair(
+        "ConfiguratorComponent init",
+        "application instance injected"
+    ).notify()
   }
 
   init {

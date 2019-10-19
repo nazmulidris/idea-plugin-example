@@ -30,35 +30,35 @@ import org.junit.Test
  */
 class LogServiceTest : BasePlatformTestCase() {
 
-    @Before
-    public override fun setUp() {
-        super.setUp()
-    }
+  @Before
+  public override fun setUp() {
+    super.setUp()
+  }
 
-    @Test
-    fun testGetInstance() {
-        assertThat(LogService.instance).isNotNull
-    }
+  @Test
+  fun testGetInstance() {
+    assertThat(LogService.instance).isNotNull
+  }
 
-    @Test
-    fun testGetState() {
-        assertThat(LogService.instance.state.messageList).size()
-            .isGreaterThan(0)
-    }
+  @Test
+  fun testGetState() {
+    assertThat(LogService.instance.state.messageList).size()
+        .isGreaterThan(0)
+  }
 
-    @Test
-    fun testLoadAndGetState() {
-        val state = LogService.State().apply {
-            messageList.add("testLoadAndGetState1")
-            messageList.add("testLoadAndGetState2")
-        }
-        LogService.instance.loadState(state)
-        assertThat(LogService.instance.state).isEqualTo(state)
+  @Test
+  fun testLoadAndGetState() {
+    val state = LogService.State().apply {
+      messageList.add("testLoadAndGetState1")
+      messageList.add("testLoadAndGetState2")
     }
+    LogService.instance.loadState(state)
+    assertThat(LogService.instance.state).isEqualTo(state)
+  }
 
-    @Test
-    fun testAddMessage() {
-        LogService.instance.addMessage("testAddMessage")
-        assertThat(LogService.instance.state.messageList).contains("testAddMessage")
-    }
+  @Test
+  fun testAddMessage() {
+    LogService.instance.addMessage("testAddMessage")
+    assertThat(LogService.instance.state.messageList).contains("testAddMessage")
+  }
 }
