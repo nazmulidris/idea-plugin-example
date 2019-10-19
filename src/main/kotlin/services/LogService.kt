@@ -64,8 +64,9 @@ object LogService : PersistentStateComponent<LogService.State> {
 
   private var state = State()
 
-  data class State(var messageList: CopyOnWriteArrayList<String> =
-                       CopyOnWriteArrayList()
+  data class State(
+    var messageList: MutableList<String> =
+      CopyOnWriteArrayList()
   )
 
   /**

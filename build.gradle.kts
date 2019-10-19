@@ -48,3 +48,8 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
 tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "1.8"
 }
+
+// Testing
+dependencies {
+  testImplementation("org.assertj:assertj-core:3.11.1")
+}
