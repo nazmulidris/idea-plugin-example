@@ -39,9 +39,19 @@ class SearchOnStackOverflowActionTest : BasePlatformTestCase() {
     // Load test file w/ text selected.
     myFixture.configureByFile(
         testFolderLocation + File.separator + "testFile.md")
+
     // Try and perform the action.
-    val action = SearchOnStackOverflowAction()
+    lateinit var selectedText: String
+    lateinit var langTag: String
+    val action = SearchOnStackOverflowAction { text, lang ->
+      selectedText = text
+      langTag = lang
+    }
+
     val presentation = myFixture.testAction(action)
     assertThat(presentation.isEnabledAndVisible).isTrue()
+
+    assertThat(selectedText).isEqualTo("jetbrains sdk plugin testing")
+    assertThat(langTag).isEqualTo("+[plain text+]")
   }
 }

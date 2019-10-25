@@ -30,7 +30,16 @@ class AskQuestionOnStackOverflowAction : AnAction() {
 
 }
 
-class SearchOnStackOverflowAction : AnAction() {
+/**
+ * [handler] allows this class to be mocked. If nothing is passed, then this
+ * action does what it is supposed to. Otherwise, this handler gets passed
+ * two things:
+ * 1. selectedText: String
+ * 2. langTag: String
+ */
+class SearchOnStackOverflowAction(
+    val handler: ((String, String) -> Unit)? = null
+) : AnAction() {
   override fun update(event: AnActionEvent) {
     with(event.getRequiredData(CommonDataKeys.EDITOR)) {
       val condition = caretModel.currentCaret.hasSelection()
@@ -39,29 +48,36 @@ class SearchOnStackOverflowAction : AnAction() {
   }
 
   override fun actionPerformed(event: AnActionEvent) {
-    val langTag = with(event.getData(CommonDataKeys.PSI_FILE)) {
+    val langTag: String = with(event.getData(CommonDataKeys.PSI_FILE)) {
       this?.run {
         "+[${language.displayName.toLowerCase()}+]"
       }
     } ?: ""
 
-    val selectedText = with(event.getRequiredData(CommonDataKeys.EDITOR)) {
-      caretModel.currentCaret.selectedText
-    }
+    val selectedText: String =
+        with(event.getRequiredData(CommonDataKeys.EDITOR)) {
+          caretModel.currentCaret.selectedText
+        } ?: ""
 
-    when (selectedText) {
+    when (handler) {
       null -> {
-        Messages.showMessageDialog(
-            event.project,
-            "Please select something before running this action",
-            "Search on Stack Overflow",
-            Messages.getWarningIcon())
+        if (selectedText.isEmpty()) {
+          Messages.showMessageDialog(
+              event.project,
+              "Please select something before running this action",
+              "Search on Stack Overflow",
+              Messages.getWarningIcon())
+        }
+        else {
+          val query = URLEncoder.encode(selectedText, "UTF-8") + langTag
+          BrowserUtil.browse("https://stackoverflow.com/search?q=$query")
+        }
       }
       else -> {
-        val query = URLEncoder.encode(selectedText, "UTF-8") + langTag
-        BrowserUtil.browse("https://stackoverflow.com/search?q=$query")
+        handler.invoke(selectedText, langTag)
       }
     }
+
   }
 
 }
