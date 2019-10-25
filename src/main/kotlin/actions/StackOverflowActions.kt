@@ -59,24 +59,21 @@ class SearchOnStackOverflowAction(
           caretModel.currentCaret.selectedText
         } ?: ""
 
-    when (handler) {
-      null -> {
-        if (selectedText.isEmpty()) {
-          Messages.showMessageDialog(
-              event.project,
-              "Please select something before running this action",
-              "Search on Stack Overflow",
-              Messages.getWarningIcon())
-        }
-        else {
-          val query = URLEncoder.encode(selectedText, "UTF-8") + langTag
-          BrowserUtil.browse("https://stackoverflow.com/search?q=$query")
-        }
+    val myHandler = handler ?: { _, _ ->
+      if (selectedText.isEmpty()) {
+        Messages.showMessageDialog(
+            event.project,
+            "Please select something before running this action",
+            "Search on Stack Overflow",
+            Messages.getWarningIcon())
       }
-      else -> {
-        handler.invoke(selectedText, langTag)
+      else {
+        val query = URLEncoder.encode(selectedText, "UTF-8") + langTag
+        BrowserUtil.browse("https://stackoverflow.com/search?q=$query")
       }
     }
+
+    myHandler.invoke(selectedText, langTag)
 
   }
 
