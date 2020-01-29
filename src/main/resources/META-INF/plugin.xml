@@ -138,11 +138,14 @@
     <postStartupActivity implementation="onProjectOpen.PostStartupActivity" />
   </extensions>
 
-  <!-- Extension to publish the LogService. -->
+  <!--
+    Extension to publish the LogService. This should not be needed with light
+    services, but due to the tests failing on the latest versions of IDEA, the
+    "light service" has to be manually registered for now.
+  -->
   <extensions defaultExtensionNs="com.intellij">
     <projectService
         serviceImplementation="onProjectOpen.FileManagerLightService" />
   </extensions>
-
 
 </idea-plugin>

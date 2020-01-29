@@ -35,8 +35,8 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-//  version = "2019.2.1"
-  version = "LATEST-EAP-SNAPSHOT"
+  version = "2019.2.3"
+//  version = "LATEST-EAP-SNAPSHOT"
 }
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
   changeNotes("""
