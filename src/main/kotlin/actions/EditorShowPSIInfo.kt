@@ -17,12 +17,37 @@ package actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
+import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
 import printDebugHeader
+import printlnAndLog
+
 
 internal class EditorShowPSIInfo : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
     printDebugHeader()
 
+    val psiFile = e.getRequiredData(CommonDataKeys.PSI_FILE)
+    val psiFileViewProvider = psiFile.viewProvider
+    psiFileViewProvider.languages
+
+    buildString {
+      var headerCount = 0
+
+      psiFile.accept(object : MarkdownRecursiveElementVisitor() {
+        override fun visitHeader(header: MarkdownHeaderImpl) {
+          headerCount++
+          // The following line ensures that ProgressManager.checkCancelled()
+          // is called.
+          super.visitHeader(header)
+        }
+      })
+
+      append("languages: ${psiFileViewProvider.languages}\n")
+      append("md.headers: $headerCount\n")
+
+    }.printlnAndLog()
   }
 
   override fun update(e: AnActionEvent) =

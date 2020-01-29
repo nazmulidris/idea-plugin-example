@@ -147,4 +147,6 @@
         serviceImplementation="onProjectOpen.FileManagerLightService" />
   </extensions>
 
+  <depends>org.intellij.plugins.markdown</depends>
+
 </idea-plugin>
