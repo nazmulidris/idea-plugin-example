@@ -5,7 +5,7 @@
 To find the IDEA log look at the `$PROJECT_DIR/build/idea-sandbox/system/log
 /idea.log` file. A simple command to do this (from the project directory) is:
 
-```bash
+```shell script
 find . -name "idea.log" | xargs tail -f | grep MyPlugin
 ```
 
@@ -13,9 +13,16 @@ To find the `"logServiceData.xml"` take a look at the `$PROJECT_DIR/build
 /idea-sandbox/config/options/logServiceData.xml` file. A simple command to do
  this (from the project directory) is:
  
-```bash
+```shell script
 find . -name "logServiceData.xml" | xargs subl -n
 ```
+
+Also, to delete this file, if it gets too big:
+
+```shell script
+find . -name "logServiceData.xml" | xargs rm
+```
+
 
 # References
 
