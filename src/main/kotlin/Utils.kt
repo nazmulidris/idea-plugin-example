@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Nazmul Idris. All rights reserved.
+ * Copyright 2020 Nazmul Idris. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,26 @@ import com.intellij.notification.NotificationListener.UrlOpeningListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import services.LogService
+
+fun printDebugHeader() {
+  val stackTrace = Thread.currentThread().stackTrace[2]
+  Colors.ANSI_PURPLE(
+      "MyPlugin: ${stackTrace.className}.${stackTrace.methodName}()")
+      .printlnAndLog()
+}
+
+fun String.printlnAndLog() {
+  log()
+  println(this)
+}
+
+/**
+ * Write this to the idea.log file, located in:
+ * $PROJECT_DIR/build/idea-sandbox/system/log
+ */
+fun String.log() {
+  PluginManager.getLogger().info("MyPlugin: $this")
+}
 
 /**
  * Write this to the idea.log file, located in:
@@ -57,3 +77,26 @@ fun Pair<String, String>.notify() = com.intellij.notification
 fun whichThread(): String =
     (if (ApplicationManager.getApplication().isDispatchThread) "Running on EDT"
     else "Running BGT") + " - ${Thread.currentThread().name.take(25)}..."
+
+/**
+ * https://github.com/fusesource/jansi
+ */
+enum class Colors(val ansiCode: String) {
+  ANSI_RESET("\u001B[0m"),
+  ANSI_BLACK("\u001B[30m"),
+  ANSI_RED("\u001B[31m"),
+  ANSI_GREEN("\u001B[32m"),
+  ANSI_YELLOW("\u001B[33m"),
+  ANSI_BLUE("\u001B[34m"),
+  ANSI_PURPLE("\u001B[35m"),
+  ANSI_CYAN("\u001B[36m"),
+  ANSI_WHITE("\u001B[37m");
+
+  operator fun invoke(content: String): String {
+    return "${ansiCode}$content${ANSI_RESET.ansiCode}"
+  }
+
+  operator fun invoke(content: StringBuilder): StringBuilder {
+    return StringBuilder("${ansiCode}$content${ANSI_RESET.ansiCode}")
+  }
+}

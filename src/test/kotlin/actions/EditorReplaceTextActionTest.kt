@@ -23,7 +23,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 
-class SearchOnStackOverflowActionTest : BasePlatformTestCase() {
+class EditorReplaceTextActionTest : BasePlatformTestCase() {
 
   @Before
   public override fun setUp() {
@@ -36,22 +36,16 @@ class SearchOnStackOverflowActionTest : BasePlatformTestCase() {
   }
 
   @Test
-  fun testSelectedTextIsSearchedOnStackOverflow() {
+  fun testSelectedTextIsReplaced() {
     // Load test file w/ text selected.
     myFixture.configureByFile(TestFile.Input)
 
     // Try and perform the action.
-    lateinit var selectedText: String
-    lateinit var langTag: String
-    val action = SearchOnStackOverflowAction { text, lang ->
-      selectedText = text
-      langTag = lang
-    }
-
-    val presentation = myFixture.testAction(action)
+    val presentation = myFixture.testAction(EditorReplaceTextAction())
     assertThat(presentation.isEnabledAndVisible).isTrue()
 
-    assertThat(selectedText).isEqualTo("jetbrains sdk plugin testing")
-    assertThat(langTag).isEqualTo("+[plain text+]")
+    // Assert that the changes are what we expect by comparing it to output
+    // file.
+    myFixture.checkResultByFile(TestFile.Output)
   }
 }

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2019 Nazmul Idris. All rights reserved.
+  ~ Copyright 2020 Nazmul Idris. All rights reserved.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -72,6 +72,16 @@
         icon="/icons/ic_stackoverflow.svg">
       <add-to-group group-id="EditorPopupMenu" anchor="last" />
       <add-to-group group-id="ConsoleEditorPopupMenu" anchor="last" />
+    </action>
+  </actions>
+
+  <!--  Add EditorReplaceTextAction -->
+  <actions>
+    <action id="actions.EditorReplaceTextAction"
+        class="actions.EditorReplaceTextAction" text="Replace Selected Text"
+        description="Simply replace selected text w/ enclosing brackets"
+        icon="/icons/ic_extension.svg">
+      <add-to-group group-id="EditorPopupMenu" anchor="first" />
     </action>
   </actions>
 

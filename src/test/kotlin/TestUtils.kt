@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Nazmul Idris. All rights reserved.
+ * Copyright 2020 Nazmul Idris. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,3 +62,7 @@ class TestUtils {
   }
 }
 
+object TestFile {
+  val Input = "input-file.md"
+  val Output = "output-file.md"
+}
