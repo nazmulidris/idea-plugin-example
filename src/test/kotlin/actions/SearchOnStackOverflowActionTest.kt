@@ -21,24 +21,23 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
-import java.io.File
 
 class SearchOnStackOverflowActionTest : BasePlatformTestCase() {
-
-  private lateinit var testFolderLocation: String
 
   @Before
   public override fun setUp() {
     super.setUp()
-    testFolderLocation = computeBasePath()
-    assertThat(testFolderLocation).isNotNull()
+    assertThat(testDataPath).isNotNull()
+  }
+
+  override fun getTestDataPath(): String {
+    return computeBasePath()
   }
 
   @Test
   fun testSelectedTextIsSearchedOnStackOverflow() {
     // Load test file w/ text selected.
-    myFixture.configureByFile(
-        testFolderLocation + File.separator + "testFile.md")
+    myFixture.configureByFile("testFile.md")
 
     // Try and perform the action.
     lateinit var selectedText: String
