@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Nazmul Idris. All rights reserved.
+ * Copyright 2020 Nazmul Idris. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 
 package services
 
+import Colors.ANSI_BLUE
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import logWithoutHistory
+import printDebugHeader
+import printlnAndLog
 import whichThread
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -84,9 +87,11 @@ object LogService : PersistentStateComponent<LogService.State> {
    */
   override fun loadState(stateLoadedFromPersistence: State) {
     "IDEA called loadState(stateLoadedFromPersistence)".logWithoutHistory()
-    stateLoadedFromPersistence.messageList
+    val logMessages = stateLoadedFromPersistence
+        .messageList
         .joinToString(separator = ",", prefix = "{", postfix = "}")
-        .logWithoutHistory()
+    printDebugHeader()
+    ANSI_BLUE(logMessages).printlnAndLog()
     state = stateLoadedFromPersistence
   }
 

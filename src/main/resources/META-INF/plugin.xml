@@ -28,6 +28,11 @@
       <li>Creates an application component named extensionPoints.Configurator</li>
       <li>Provides an extension point named "configuratorRunnable"</li>
       <li>Loads all the extensions for this extension point</li>
+      <li>Works with VFS</li>
+      <li>Works with PSI</li>
+      <li>Works with PostStartupActivity</li>
+      <li>Works with light services</li>
+      <li>Does not have any components</li>
     </ol>
     ]]></description>
 
@@ -127,5 +132,17 @@
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
     </action>
   </actions>
+
+  <!--  Extension to run some code post startup https://tinyurl.com/ufd64mk -->
+  <extensions defaultExtensionNs="com.intellij">
+    <postStartupActivity implementation="onProjectOpen.PostStartupActivity" />
+  </extensions>
+
+  <!-- Extension to publish the LogService. -->
+  <extensions defaultExtensionNs="com.intellij">
+    <projectService
+        serviceImplementation="onProjectOpen.FileManagerLightService" />
+  </extensions>
+
 
 </idea-plugin>

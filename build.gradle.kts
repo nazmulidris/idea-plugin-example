@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Nazmul Idris. All rights reserved.
+ * Copyright 2020 Nazmul Idris. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,8 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-  version = "2019.2.1"
+//  version = "2019.2.1"
+  version = "LATEST-EAP-SNAPSHOT"
 }
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
   changeNotes("""
