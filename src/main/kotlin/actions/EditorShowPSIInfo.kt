@@ -15,14 +15,26 @@
  */
 package actions
 
+import Colors.ANSI_RED
+import Colors.ANSI_YELLOW
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task.Backgroundable
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
+import com.intellij.psi.FileViewProvider
+import com.intellij.psi.PsiFile
 import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
+import org.intellij.plugins.markdown.lang.psi.impl.MarkdownParagraphImpl
 import printDebugHeader
 import printlnAndLog
-
+import whichThread
 
 internal class EditorShowPSIInfo : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
@@ -30,14 +42,49 @@ internal class EditorShowPSIInfo : AnAction() {
 
     val psiFile = e.getRequiredData(CommonDataKeys.PSI_FILE)
     val psiFileViewProvider = psiFile.viewProvider
-    psiFileViewProvider.languages
+    val project = e.getRequiredData(CommonDataKeys.PROJECT)
+    val progressTitle = "Doing heavy PSI computation"
+
+    val task = object : Backgroundable(project, progressTitle) {
+      override fun run(indicator: ProgressIndicator) {
+        doWorkInBackground(project, psiFile, psiFileViewProvider, indicator)
+      }
+    }
+
+    ProgressManager
+        .getInstance()
+        .runProcessWithProgressAsynchronously(
+            task, BackgroundableProcessIndicator(task))
+
+  }
+
+  private fun doWorkInBackground(project: Project,
+                                 psiFile: PsiFile,
+                                 psiFileViewProvider: FileViewProvider,
+                                 indicator: ProgressIndicator
+  ) {
+    indicator.isIndeterminate = true
 
     buildString {
-      var headerCount = 0
+      val count = object {
+        var paragraph: Int = 0
+        var header: Int = 0
+      }
 
       psiFile.accept(object : MarkdownRecursiveElementVisitor() {
+        override fun visitParagraph(paragraph: MarkdownParagraphImpl) {
+          count.paragraph++
+          Thread.sleep(2000)
+          checkCancelled(indicator, project)
+          // The following line ensures that ProgressManager.checkCancelled()
+          // is called.
+          super.visitParagraph(paragraph)
+        }
+
         override fun visitHeader(header: MarkdownHeaderImpl) {
-          headerCount++
+          count.header++
+          Thread.sleep(2000)
+          checkCancelled(indicator, project)
           // The following line ensures that ProgressManager.checkCancelled()
           // is called.
           super.visitHeader(header)
@@ -45,9 +92,28 @@ internal class EditorShowPSIInfo : AnAction() {
       })
 
       append("languages: ${psiFileViewProvider.languages}\n")
-      append("md.headers: $headerCount\n")
+      append("count.header: ${count.header}\n")
+      append("count.paragraph: ${count.paragraph}\n")
+
+      checkCancelled(indicator, project)
 
     }.printlnAndLog()
+  }
+
+  private fun checkCancelled(indicator: ProgressIndicator,
+                             project: Project
+  ) {
+    printDebugHeader()
+    ANSI_YELLOW(whichThread()).printlnAndLog()
+    if (indicator.isCanceled) {
+      ApplicationManager
+          .getApplication()
+          .invokeLater {
+            Messages.showWarningDialog(
+                project, "Task was cancelled", "Cancelled")
+          }
+      ANSI_RED("Task was cancelled").printlnAndLog()
+    }
   }
 
   override fun update(e: AnActionEvent) =

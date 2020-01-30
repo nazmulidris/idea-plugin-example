@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
+import Colors.ANSI_PURPLE
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationListener.UrlOpeningListener
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ApplicationManager.getApplication
 import services.LogService
 
 fun printDebugHeader() {
   val stackTrace = Thread.currentThread().stackTrace[2]
-  Colors.ANSI_PURPLE(
-      "MyPlugin: ${stackTrace.className}.${stackTrace.methodName}()")
+  ANSI_PURPLE(
+      "${stackTrace.className}.${stackTrace.methodName}()")
       .printlnAndLog()
 }
 
 fun String.printlnAndLog() {
   log()
-  println(this)
+  println("MyPlugin: $this")
 }
 
 /**
@@ -74,9 +75,17 @@ fun Pair<String, String>.notify() = com.intellij.notification
  * [ApplicationManager.getApplication#isDispatchThread] is equivalent to calling
  * [java.awt.EventQueue.isDispatchThread].
  */
-fun whichThread(): String =
-    (if (ApplicationManager.getApplication().isDispatchThread) "Running on EDT"
-    else "Running BGT") + " - ${Thread.currentThread().name.take(25)}..."
+fun whichThread() = buildString {
+  append(
+      when {
+        getApplication().isDispatchThread -> "Running on EDT"
+        else                              -> "Running on BGT"
+      }
+  )
+  append(
+      " - ${Thread.currentThread().name.take(50)}..."
+  )
+}
 
 /**
  * https://github.com/fusesource/jansi
