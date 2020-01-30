@@ -22,9 +22,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task.Backgroundable
-import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.FileViewProvider
@@ -51,10 +49,13 @@ internal class EditorShowPSIInfo : AnAction() {
       }
     }
 
-    ProgressManager
-        .getInstance()
-        .runProcessWithProgressAsynchronously(
-            task, BackgroundableProcessIndicator(task))
+    task.queue()
+
+    // No need for the code below if you use `task.queue()`.
+    // ProgressManager
+    //    .getInstance()
+    //    .runProcessWithProgressAsynchronously(
+    //        task, BackgroundableProcessIndicator(task))
 
   }
 
@@ -63,6 +64,9 @@ internal class EditorShowPSIInfo : AnAction() {
                                  psiFileViewProvider: FileViewProvider,
                                  indicator: ProgressIndicator
   ) {
+    printDebugHeader()
+    ANSI_YELLOW(whichThread()).printlnAndLog()
+
     indicator.isIndeterminate = true
 
     buildString {
@@ -73,18 +77,26 @@ internal class EditorShowPSIInfo : AnAction() {
 
       psiFile.accept(object : MarkdownRecursiveElementVisitor() {
         override fun visitParagraph(paragraph: MarkdownParagraphImpl) {
+          printDebugHeader()
+          ANSI_YELLOW(whichThread()).printlnAndLog()
+
           count.paragraph++
           Thread.sleep(2000)
           checkCancelled(indicator, project)
+
           // The following line ensures that ProgressManager.checkCancelled()
           // is called.
           super.visitParagraph(paragraph)
         }
 
         override fun visitHeader(header: MarkdownHeaderImpl) {
+          printDebugHeader()
+          ANSI_YELLOW(whichThread()).printlnAndLog()
+
           count.header++
           Thread.sleep(2000)
           checkCancelled(indicator, project)
+
           // The following line ensures that ProgressManager.checkCancelled()
           // is called.
           super.visitHeader(header)
@@ -105,14 +117,15 @@ internal class EditorShowPSIInfo : AnAction() {
   ) {
     printDebugHeader()
     ANSI_YELLOW(whichThread()).printlnAndLog()
+
     if (indicator.isCanceled) {
+      ANSI_RED("Task was cancelled").printlnAndLog()
       ApplicationManager
           .getApplication()
           .invokeLater {
             Messages.showWarningDialog(
                 project, "Task was cancelled", "Cancelled")
           }
-      ANSI_RED("Task was cancelled").printlnAndLog()
     }
   }
 
