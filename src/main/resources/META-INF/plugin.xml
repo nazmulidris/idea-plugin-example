@@ -147,6 +147,9 @@
         serviceImplementation="onProjectOpen.FileManagerLightService" />
   </extensions>
 
+  <!--  Markdown plugin -->
   <depends>org.intellij.plugins.markdown</depends>
+  <!--  Built in modules: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html-->
+  <depends>com.intellij.modules.java</depends>
 
 </idea-plugin>

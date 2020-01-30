@@ -45,7 +45,7 @@ intellij {
   // MarkdownRecursiveElementVisitor.kt file. More info:
   // https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
   // https://plugins.jetbrains.com/plugin/7793-markdown/versions
-  setPlugins("org.intellij.plugins.markdown:192.5728.98")
+  setPlugins("java", "org.intellij.plugins.markdown:192.5728.98")
 }
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
   changeNotes("""
