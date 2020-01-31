@@ -78,8 +78,8 @@ fun Pair<String, String>.notify() = com.intellij.notification
 fun whichThread() = buildString {
   append(
       when {
-        getApplication().isDispatchThread -> "Running on EDT"
-        else                              -> "Running on BGT"
+        getApplication().isDispatchThread -> Colors.ANSI_RED("Running on EDT")
+        else                              -> Colors.ANSI_GREEN("Running on BGT")
       }
   )
   append(
