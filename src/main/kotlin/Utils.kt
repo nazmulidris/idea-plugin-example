@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import Colors.ANSI_CYAN
 import Colors.ANSI_PURPLE
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
@@ -31,7 +32,7 @@ fun printDebugHeader() {
 
 fun String.printlnAndLog() {
   log()
-  println("MyPlugin: $this")
+  println(ANSI_CYAN("MyPlugin: ") + this)
 }
 
 /**
