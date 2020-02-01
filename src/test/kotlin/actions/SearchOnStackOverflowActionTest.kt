@@ -52,6 +52,6 @@ class SearchOnStackOverflowActionTest : BasePlatformTestCase() {
     assertThat(presentation.isEnabledAndVisible).isTrue()
 
     assertThat(selectedText).isEqualTo("jetbrains sdk plugin testing")
-    assertThat(langTag).isEqualTo("+[plain text+]")
+    assertThat(langTag).isEqualTo("+[markdown+]")
   }
 }
