@@ -117,35 +117,33 @@ internal class EditorShowPSIInfo : AnAction() {
         append("Element at caret: $element\n")
         val containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)
 
-        append("Containing method: ")
-        append(containingMethod?.name ?: "none")
-        append("\n")
-
         containingMethod?.apply {
-          val containingClass = containingMethod.containingClass
-          append("Containing class: ")
-          append(if (containingClass != null) containingClass.name else "none")
-          append("\n")
+          append("Containing method: ${containingMethod.name}\n")
 
-          append("Local variables:\n")
+          containingMethod.containingClass?.apply {
+            append("Containing class: ${this.name} \n")
+          }
+
+          val list = mutableListOf<PsiLocalVariable>()
           containingMethod.accept(object : JavaRecursiveElementVisitor() {
             override fun visitLocalVariable(variable: PsiLocalVariable) {
+              list.add(variable)
               super.visitLocalVariable(variable)
-              append(variable.name).append("\n")
             }
           })
+          if (list.isNotEmpty())
+            append(list.joinToString(prefix = "Local variables:\n", separator = "\n") { it -> "- ${it.name}" })
+
         }
 
       }
 
     }
 
+    val message = if (javaPsiInfo == "") "No element at caret" else javaPsiInfo
+    message.printlnAndLog()
     ApplicationManager.getApplication().invokeLater {
-      Messages.showMessageDialog(
-          project,
-          if (javaPsiInfo == "") "No element at caret" else javaPsiInfo,
-          "PSI Java Info",
-          null)
+      Messages.showMessageDialog(project, message, "PSI Java Info", null)
     }
 
   }
