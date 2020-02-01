@@ -15,8 +15,7 @@
  */
 package actions
 
-import Colors.ANSI_RED
-import Colors.ANSI_YELLOW
+import Colors.*
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -39,7 +38,7 @@ import whichThread
 
 
 internal class EditorShowPSIInfo : AnAction() {
-  val backgroundThreadSleepDuration: Long = 100
+  val sleepDurationMs: Long = 100
 
   /** [kotlin anonymous objects](https://medium.com/@agrawalsuneet/object-expression-in-kotlin-e75735f19f5d) */
   private val count = object {
@@ -108,14 +107,18 @@ internal class EditorShowPSIInfo : AnAction() {
                                project: Project,
                                editor: Editor
   ) {
+    printDebugHeader()
+
     val offset = editor.caretModel.offset
-    val element = psiFile.findElementAt(offset)
+    val element: PsiElement? = psiFile.findElementAt(offset)
 
     val javaPsiInfo = buildString {
 
+      sleep(sleepDurationMs * 20)
+
       element?.apply {
         append("Element at caret: $element\n")
-        val containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)
+        val containingMethod: PsiMethod? = PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)
 
         containingMethod?.apply {
           append("Containing method: ${containingMethod.name}\n")
@@ -128,6 +131,9 @@ internal class EditorShowPSIInfo : AnAction() {
           containingMethod.accept(object : JavaRecursiveElementVisitor() {
             override fun visitLocalVariable(variable: PsiLocalVariable) {
               list.add(variable)
+
+              // The following line ensures that ProgressManager.checkCancelled()
+              // is called.
               super.visitLocalVariable(variable)
             }
           })
@@ -140,7 +146,7 @@ internal class EditorShowPSIInfo : AnAction() {
 
     }
 
-    val message = if (javaPsiInfo == "") "No element at caret" else javaPsiInfo
+    val message = if (javaPsiInfo == "") "No PsiElement at caret!" else javaPsiInfo
     message.printlnAndLog()
     ApplicationManager.getApplication().invokeLater {
       Messages.showMessageDialog(project, message, "PSI Java Info", null)
@@ -158,7 +164,7 @@ internal class EditorShowPSIInfo : AnAction() {
         ANSI_YELLOW(whichThread()).printlnAndLog()
 
         this@EditorShowPSIInfo.count.paragraph++
-        Thread.sleep(backgroundThreadSleepDuration)
+        sleep()
         checkCancelled(indicator, project)
 
         // The following line ensures that ProgressManager.checkCancelled()
@@ -171,7 +177,7 @@ internal class EditorShowPSIInfo : AnAction() {
         ANSI_YELLOW(whichThread()).printlnAndLog()
 
         this@EditorShowPSIInfo.count.header++
-        Thread.sleep(backgroundThreadSleepDuration)
+        sleep()
         checkCancelled(indicator, project)
 
         // The following line ensures that ProgressManager.checkCancelled()
@@ -180,6 +186,13 @@ internal class EditorShowPSIInfo : AnAction() {
       }
     })
 
+  }
+
+  private fun sleep(durationMs: Long = sleepDurationMs) {
+    val formattedDuration = "%.3f sec".format(durationMs / 1000f)
+    ANSI_YELLOW(whichThread() + ANSI_RED(" sleeping for $formattedDuration 😴")).printlnAndLog()
+    Thread.sleep(durationMs)
+    ANSI_YELLOW(whichThread() + ANSI_BLUE(" awake 😳")).printlnAndLog()
   }
 
   private fun Set<Language>.contains(language: String): Boolean =
