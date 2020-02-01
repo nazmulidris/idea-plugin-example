@@ -22,6 +22,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task.Backgroundable
@@ -38,6 +39,8 @@ import whichThread
 
 
 internal class EditorShowPSIInfo : AnAction() {
+  val backgroundThreadSleepDuration: Long = 100
+
   /** [kotlin anonymous objects](https://medium.com/@agrawalsuneet/object-expression-in-kotlin-e75735f19f5d) */
   private val count = object {
     var paragraph: Int = 0
@@ -86,13 +89,8 @@ internal class EditorShowPSIInfo : AnAction() {
     buildString {
 
       when {
-        languages.contains("Markdown") -> navigateMarkdownTree(psiFile,
-                                                               indicator,
-                                                               project)
-        languages.contains("Java")     -> navigateJavaTree(psiFile,
-                                                           indicator,
-                                                           project,
-                                                           editor)
+        languages.contains("Markdown") -> runReadAction { navigateMarkdownTree(psiFile, indicator, project) }
+        languages.contains("Java")     -> runReadAction { navigateJavaTree(psiFile, indicator, project, editor) }
         else                           -> append(ANSI_RED("No supported languages found"))
       }
 
@@ -116,22 +114,12 @@ internal class EditorShowPSIInfo : AnAction() {
     val javaPsiInfo = buildString {
 
       element?.apply {
-
         append("Element at caret: $element\n")
+        val containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)
 
-        val containingMethod =
-            PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)
-
-        append {
-          "Containing method: " +
-          containingMethod?.name
-        }
-
-/*
-      append("Containing method: ")
-      append(containingMethod?.name ?: "none")
-      append("\n")
-*/
+        append("Containing method: ")
+        append(containingMethod?.name ?: "none")
+        append("\n")
 
         containingMethod?.apply {
           val containingClass = containingMethod.containingClass
@@ -152,11 +140,13 @@ internal class EditorShowPSIInfo : AnAction() {
 
     }
 
-    Messages.showMessageDialog(
-        project,
-        if (javaPsiInfo == "") "No element at caret" else javaPsiInfo,
-        "PSI Java Info",
-        null)
+    ApplicationManager.getApplication().invokeLater {
+      Messages.showMessageDialog(
+          project,
+          if (javaPsiInfo == "") "No element at caret" else javaPsiInfo,
+          "PSI Java Info",
+          null)
+    }
 
   }
 
@@ -170,7 +160,7 @@ internal class EditorShowPSIInfo : AnAction() {
         ANSI_YELLOW(whichThread()).printlnAndLog()
 
         this@EditorShowPSIInfo.count.paragraph++
-        Thread.sleep(2000)
+        Thread.sleep(backgroundThreadSleepDuration)
         checkCancelled(indicator, project)
 
         // The following line ensures that ProgressManager.checkCancelled()
@@ -183,7 +173,7 @@ internal class EditorShowPSIInfo : AnAction() {
         ANSI_YELLOW(whichThread()).printlnAndLog()
 
         this@EditorShowPSIInfo.count.header++
-        Thread.sleep(2000)
+        Thread.sleep(backgroundThreadSleepDuration)
         checkCancelled(indicator, project)
 
         // The following line ensures that ProgressManager.checkCancelled()
