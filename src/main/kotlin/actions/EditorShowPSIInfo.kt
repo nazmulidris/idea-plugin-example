@@ -31,6 +31,7 @@ import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
+import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownParagraphImpl
 import printDebugHeader
 import printlnAndLog
@@ -38,13 +39,11 @@ import whichThread
 
 
 internal class EditorShowPSIInfo : AnAction() {
-  val sleepDurationMs: Long = 100
+  private val sleepDurationMs: Long = 100
 
-  /** [kotlin anonymous objects](https://medium.com/@agrawalsuneet/object-expression-in-kotlin-e75735f19f5d) */
-  private val count = object {
-    var paragraph: Int = 0
-    var header: Int = 0
-  }
+  private data class Count(var paragraph: Int = 0, var links: Int = 0, var header: Int = 0)
+
+  private val count = Count()
 
   override fun actionPerformed(e: AnActionEvent) {
     printDebugHeader()
@@ -158,11 +157,24 @@ internal class EditorShowPSIInfo : AnAction() {
                                    project: Project
   ): String {
     psiFile.accept(object : MarkdownRecursiveElementVisitor() {
+      override fun visitLinkDestination(linkDestination: MarkdownLinkDestinationImpl) {
+        printDebugHeader()
+        ANSI_YELLOW(whichThread()).printlnAndLog()
+
+        count.links++
+        sleep()
+        checkCancelled(indicator, project)
+
+        // The following line ensures that ProgressManager.checkCancelled()
+        // is called.
+        super.visitLinkDestination(linkDestination)
+      }
+
       override fun visitParagraph(paragraph: MarkdownParagraphImpl) {
         printDebugHeader()
         ANSI_YELLOW(whichThread()).printlnAndLog()
 
-        this@EditorShowPSIInfo.count.paragraph++
+        count.paragraph++
         sleep()
         checkCancelled(indicator, project)
 
@@ -175,7 +187,7 @@ internal class EditorShowPSIInfo : AnAction() {
         printDebugHeader()
         ANSI_YELLOW(whichThread()).printlnAndLog()
 
-        this@EditorShowPSIInfo.count.header++
+        count.header++
         sleep()
         checkCancelled(indicator, project)
 
@@ -185,11 +197,7 @@ internal class EditorShowPSIInfo : AnAction() {
       }
     })
 
-
-    return buildString {
-      append("count.header: ${count.header}\n")
-      append("count.paragraph: ${count.paragraph}\n")
-    }
+    return count.toString()
 
   }
 
