@@ -125,9 +125,16 @@
 
   <!-- Add action to show PSI information in a dialog box  -->
   <actions>
-    <action id="MyPlugin.EditorShowPSIInfo" class="actions.EditorShowPSIInfo"
-        text="Show PSI Info" description="Show PSI info in a dialog box"
-        icon="/icons/ic_extension.svg">
+    <action id="MyPlugin.EditorShowPSIInfo" class="actions.EditorShowPSIInfo" text="Show PSI Info"
+        description="Show PSI info in a dialog box" icon="/icons/ic_extension.svg">
+      <add-to-group group-id="EditorPopupMenu" anchor="first" />
+    </action>
+  </actions>
+
+  <!--  Add action to replace Markdown inline link w/ something else -->
+  <actions>
+    <action id="MyPlugin.EditorReplaceLink" class="actions.EditorReplaceLink" text="Replace Inline Link"
+        description="Replace inline link w/ something else" icon="/icons/ic_extension.svg">
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
     </action>
   </actions>
