@@ -115,6 +115,7 @@ internal class EditorShowPSIInfo : AnAction() {
     val javaPsiInfo = buildString {
 
       sleep(sleepDurationMs * 20)
+      checkCancelled(indicator, project)
 
       element?.apply {
         append("Element at caret: $element\n")
@@ -143,6 +144,8 @@ internal class EditorShowPSIInfo : AnAction() {
         }
 
       }
+
+      checkCancelled(indicator, project)
 
     }
 
