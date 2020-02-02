@@ -53,7 +53,7 @@ internal class EditorShowPSIInfo : AnAction() {
     val psiFileViewProvider = psiFile.viewProvider
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
     val editor = e.getRequiredData(CommonDataKeys.EDITOR)
-    val progressTitle = "Doing heavy PSI computation"
+    val progressTitle = "Doing heavy PSI access"
 
     val task = object : Backgroundable(project, progressTitle) {
       override fun run(indicator: ProgressIndicator) {
@@ -83,30 +83,30 @@ internal class EditorShowPSIInfo : AnAction() {
 
     indicator.isIndeterminate = true
 
-    val languages = psiFileViewProvider.languages
+    val langs = psiFileViewProvider.languages
 
-    buildString {
-
+    val message = buildString {
+      append(langs.joinToString(prefix = "\n[", postfix = "]\n"))
       when {
-        languages.contains("Markdown") -> runReadAction { navigateMarkdownTree(psiFile, indicator, project) }
-        languages.contains("Java")     -> runReadAction { navigateJavaTree(psiFile, indicator, project, editor) }
-        else                           -> append(ANSI_RED("No supported languages found"))
+        langs.contains("Markdown") -> runReadAction { append(navigateMarkdownTree(psiFile, indicator, project)) }
+        langs.contains("Java")     -> runReadAction { append(navigateJavaTree(psiFile, indicator, project, editor)) }
+        else                       -> append(ANSI_RED("No supported languages found"))
       }
-
-      append("languages: $languages\n")
-      append("count.header: ${count.header}\n")
-      append("count.paragraph: ${count.paragraph}\n")
-
       checkCancelled(indicator, project)
+    }
 
-    }.printlnAndLog()
+    message.printlnAndLog()
+    ApplicationManager.getApplication().invokeLater {
+      Messages.showMessageDialog(project, message, "PSI Info", null)
+    }
+
   }
 
   private fun navigateJavaTree(psiFile: PsiFile,
                                indicator: ProgressIndicator,
                                project: Project,
                                editor: Editor
-  ) {
+  ): String {
     printDebugHeader()
 
     val offset = editor.caretModel.offset
@@ -149,18 +149,14 @@ internal class EditorShowPSIInfo : AnAction() {
 
     }
 
-    val message = if (javaPsiInfo == "") "No PsiElement at caret!" else javaPsiInfo
-    message.printlnAndLog()
-    ApplicationManager.getApplication().invokeLater {
-      Messages.showMessageDialog(project, message, "PSI Java Info", null)
-    }
+    return if (javaPsiInfo == "") "No PsiElement at caret!" else javaPsiInfo
 
   }
 
   private fun navigateMarkdownTree(psiFile: PsiFile,
                                    indicator: ProgressIndicator,
                                    project: Project
-  ) {
+  ): String {
     psiFile.accept(object : MarkdownRecursiveElementVisitor() {
       override fun visitParagraph(paragraph: MarkdownParagraphImpl) {
         printDebugHeader()
@@ -188,6 +184,12 @@ internal class EditorShowPSIInfo : AnAction() {
         super.visitHeader(header)
       }
     })
+
+
+    return buildString {
+      append("count.header: ${count.header}\n")
+      append("count.paragraph: ${count.paragraph}\n")
+    }
 
   }
 
