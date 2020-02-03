@@ -16,6 +16,7 @@
 package actions
 
 import Colors.ANSI_GREEN
+import Colors.ANSI_RED
 import actions.EditorBaseAction.mustHaveProjectAndEditor
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -39,6 +40,7 @@ import org.intellij.plugins.markdown.lang.psi.MarkdownPsiElementFactory
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import printDebugHeader
 import printlnAndLog
+import whichThread
 
 private fun transformLinkDestination(destination: String): String {
   return "$destination/home"
@@ -69,8 +71,12 @@ class EditorReplaceLink : AnAction() {
     // The write command action enables undo.
     WriteCommandAction.runWriteCommandAction(project) {
       if (!psiFile.isValid) return@runWriteCommandAction
-      val document = editor.document
+
+      ANSI_RED(whichThread()).printlnAndLog()
+
       replaceLink(editor, project, psiFile)
+
+      val document = editor.document
       PsiDocumentManager.getInstance(project).commitDocument(document)
     }
   }
