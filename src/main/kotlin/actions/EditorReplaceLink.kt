@@ -15,6 +15,7 @@
  */
 package actions
 
+import Colors.ANSI_GREEN
 import actions.EditorBaseAction.mustHaveProjectAndEditor
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -27,6 +28,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
+import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
+import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import printDebugHeader
 import printlnAndLog
 
@@ -40,11 +44,16 @@ class EditorReplaceLink : AnAction() {
     val progressTitle = "Doing heavy PSI mutation"
 
     object : Task.Backgroundable(project, progressTitle) {
-      override fun run(indicator: ProgressIndicator) = doWorkInBackground(editor, psiFile, project, indicator)
+      override fun run(indicator: ProgressIndicator) =
+          doWorkInBackgroundWithWriteLock(editor, psiFile, project, indicator)
     }.queue()
   }
 
-  private fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project, indicator: ProgressIndicator) {
+  private fun doWorkInBackgroundWithWriteLock(editor: Editor,
+                                              psiFile: PsiFile,
+                                              project: Project,
+                                              indicator: ProgressIndicator
+  ) {
     printDebugHeader()
 
     // The write command action enables undo.
@@ -56,20 +65,86 @@ class EditorReplaceLink : AnAction() {
     }
   }
 
+
+  /**
+   * This function tries to find the first element which is a link, by walking up the tree starting w/ the element that
+   * is currently under the caret.
+   *
+   * To simplify, something like `PsiUtilCore.getElementType(element) == INLINE_LINK` is evaluated for each element
+   * starting from the element under the caret, then visiting its parents, and their parents, etc, until a node of type
+   * `INLINE_LINK` is found, actually, a type contained in [MarkdownTokenTypeSets.LINKS].
+   *
+   * The tree might look something like the following, which is a snippet of this
+   * [README.md](https://tinyurl.com/rdowe6q) file).
+   *
+   * ```
+   * MarkdownParagraphImpl(Markdown:PARAGRAPH)(1201,1498)
+   *   PsiElement(Markdown:Markdown:TEXT)('The main goal of this plugin is to show')(1201,1240)
+   *   PsiElement(Markdown:WHITE_SPACE)(' ')(1240,1241)
+   *   ASTWrapperPsiElement(Markdown:Markdown:INLINE_LINK)(1241,1274)  <============[🔥 WE WANT THIS PARENT 🔥]=========
+   *     ASTWrapperPsiElement(Markdown:Markdown:LINK_TEXT)(1241,1252)
+   *       PsiElement(Markdown:Markdown:[)('[')(1241,1242)
+   *       PsiElement(Markdown:Markdown:TEXT)('SonarQube')(1242,1251)  <============[🔥 EDITOR CARET IS HERE 🔥]========
+   *       PsiElement(Markdown:Markdown:])(']')(1251,1252)
+   *     PsiElement(Markdown:Markdown:()('(')(1252,1253)
+   *     MarkdownLinkDestinationImpl(Markdown:Markdown:LINK_DESTINATION)(1253,1273)
+   *       PsiElement(Markdown:Markdown:GFM_AUTOLINK)('http://sonarqube.org')(1253,1273)
+   *     PsiElement(Markdown:Markdown:))(')')(1273,1274)
+   *   PsiElement(Markdown:WHITE_SPACE)(' ')(1274,1275)
+   *   PsiElement(Markdown:Markdown:TEXT)('issues directly within your IntelliJ IDE.')(1275,1316)
+   *   PsiElement(Markdown:Markdown:EOL)('\n')(1316,1317)
+   *   PsiElement(Markdown:Markdown:TEXT)('Currently the plugin is build to work in IntelliJ IDEA,')(1317,1372)
+   *   PsiElement(Markdown:WHITE_SPACE)(' ')(1372,1373)
+   *   PsiElement(Markdown:Markdown:TEXT)('RubyMine,')(1373,1382)
+   *   PsiElement(Markdown:WHITE_SPACE)(' ')(1382,1383)
+   *   PsiElement(Markdown:Markdown:TEXT)('WebStorm,')(1383,1392)
+   *   PsiElement(Markdown:WHITE_SPACE)(' ')(1392,1393)
+   *   PsiElement(Markdown:Markdown:TEXT)('PhpStorm,')(1393,1402)
+   *   PsiElement(Markdown:WHITE_SPACE)(' ')(1402,1403)
+   *   PsiElement(Markdown:Markdown:TEXT)('PyCharm,')(1403,1411)
+   *   PsiElement(Markdown:WHITE_SPACE)(' ')(1411,1412)
+   *   PsiElement(Markdown:Markdown:TEXT)('AppCode and Android Studio with any programming ... SonarQube.')(1412,1498)
+   * PsiElement(Markdown:Markdown:EOL)('\n')(1498,1499)
+   * ```
+   */
   private fun replaceLink(editor: Editor, psiFile: PsiFile) {
     printDebugHeader()
 
     val offset = editor.caretModel.offset
     val element: PsiElement? = psiFile.findElementAt(offset)
 
+    // Find the first parent of the element at the caret, which is a link.
     element?.apply {
+      val parentLinkElement = PsiTreeUtil.findFirstParent(element, false) {
+        val node = it.node
+        node != null && MarkdownTokenTypeSets.LINKS.contains(node.elementType)
+      }
+      parentLinkElement?.apply {
+        ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
+      }
 
-      element.toString().printlnAndLog()
+      "debugger".printlnAndLog()
 
-      //PsiUtilCore.getElementType(link) == INLINE_LINK
+      // TODO mutate a portion of this element
+
 
     }
 
+  }
+
+  /**
+   * This is a slightly different implementation of the first part of  [replaceLink] using more utility classes from the
+   * platform.
+   *
+   * @see [MarkdownActionUtil]
+   * @see [MarkdownIntroduceLinkReferenceAction.java](https://tinyurl.com/ufw3kll)
+   */
+  private fun findFirstParentOfElementOfTypeLink(editor: Editor, psiFile: PsiFile): PsiElement? {
+    val caret = editor.caretModel.currentCaret
+    val elements = MarkdownActionUtil.getElementsUnderCaretOrSelection(psiFile, caret)
+    return if (elements != null) MarkdownActionUtil
+        .getCommonTopmostParentOfTypes(elements.getFirst(), elements.getSecond(), MarkdownTokenTypeSets.LINKS)
+    else null
   }
 
   override fun update(e: AnActionEvent) = mustHaveProjectAndEditor(e)
