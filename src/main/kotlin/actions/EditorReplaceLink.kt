@@ -28,8 +28,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiRecursiveElementWalkingVisitor
+import com.intellij.psi.search.PsiElementProcessor.FindElement
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
+import org.intellij.plugins.markdown.lang.MarkdownTokenTypes
+import org.intellij.plugins.markdown.lang.psi.MarkdownPsiElementFactory
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import printDebugHeader
 import printlnAndLog
@@ -60,11 +66,10 @@ class EditorReplaceLink : AnAction() {
     WriteCommandAction.runWriteCommandAction(project) {
       if (!psiFile.isValid) return@runWriteCommandAction
       val document = editor.document
-      replaceLink(editor, psiFile)
+      replaceLink(editor, project, psiFile)
       PsiDocumentManager.getInstance(project).commitDocument(document)
     }
   }
-
 
   /**
    * This function tries to find the first element which is a link, by walking up the tree starting w/ the element that
@@ -107,34 +112,85 @@ class EditorReplaceLink : AnAction() {
    * PsiElement(Markdown:Markdown:EOL)('\n')(1498,1499)
    * ```
    */
-  private fun replaceLink(editor: Editor, psiFile: PsiFile) {
+  private fun replaceLink(editor: Editor, project: Project, psiFile: PsiFile) {
     printDebugHeader()
 
     val offset = editor.caretModel.offset
-    val element: PsiElement? = psiFile.findElementAt(offset)
+    val elementAtCaret: PsiElement? = psiFile.findElementAt(offset)
 
     // Find the first parent of the element at the caret, which is a link.
-    element?.apply {
-      val parentLinkElement = PsiTreeUtil.findFirstParent(element, false) {
-        val node = it.node
-        node != null && MarkdownTokenTypeSets.LINKS.contains(node.elementType)
-      }
-      parentLinkElement?.apply {
-        ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
-      }
+    val parentLinkElement = findParentElement(elementAtCaret, MarkdownTokenTypeSets.LINKS)
 
-      "debugger".printlnAndLog()
+    val linkTextElement = findChildElement(parentLinkElement, MarkdownTokenTypeSets.LINK_TEXT)
+    val textElement = findChildElement(linkTextElement, MarkdownTokenTypes.TEXT)
+    val linkDestElement = findChildElement(parentLinkElement, MarkdownTokenTypeSets.LINK_DESTINATION)
 
-      // TODO mutate a portion of this element
+    val linkText = textElement?.text
+    val linkDest = linkDestElement?.text
 
-
+    parentLinkElement?.apply {
+      ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
+      ANSI_GREEN("linkText: $linkText, linkDest: $linkDest").printlnAndLog()
     }
+
+    if (linkText == null || linkDest == null) return
+
+    // Create a replacement link destination.
+    val replacementLinkElement = createNewLinkElement(project, linkText, linkDest + "/newlink")
+
+    // Replace the original link destination in the [parentLinkElement] w/ the new one.
+    if (parentLinkElement != null && replacementLinkElement != null) parentLinkElement.replace(replacementLinkElement)
 
   }
 
+  private fun createNewLinkElement(project: Project, linkText: String, linkDestination: String
+  ): PsiElement? {
+    val markdownText = "[$linkText]($linkDestination)"
+    val newFile = MarkdownPsiElementFactory.createFile(project, markdownText)
+    val newParentLinkElement = findChildElement(newFile, MarkdownTokenTypeSets.LINKS)
+    return newParentLinkElement
+  }
+
+  private fun findChildElement(element: PsiElement?, token: IElementType?): PsiElement? {
+    return findChildElement(element, TokenSet.create(token))
+  }
+
+  private fun findChildElement(element: PsiElement?, tokenSet: TokenSet): PsiElement? {
+    if (element == null) return null
+
+    val processor: FindElement<PsiElement> =
+        object : FindElement<PsiElement>() {
+          // If found, returns false. Otherwise returns true.
+          override fun execute(each: PsiElement): Boolean {
+            if (tokenSet.contains(each.node.elementType)) return setFound(each)
+            else return true
+          }
+        }
+
+    element.accept(object : PsiRecursiveElementWalkingVisitor() {
+      override fun visitElement(element: PsiElement) {
+        val isFound = !processor.execute(element)
+        if (isFound) stopWalking()
+        else super.visitElement(element)
+      }
+    })
+
+    return processor.foundElement
+  }
+
+  private fun findParentElement(element: PsiElement?, tokenSet: TokenSet): PsiElement? {
+    when (element) {
+      null -> return null
+      else -> return PsiTreeUtil.findFirstParent(element, false) {
+        val node = it.node
+        node != null && tokenSet.contains(node.elementType)
+      }
+    }
+  }
+
   /**
-   * This is a slightly different implementation of the first part of  [replaceLink] using more utility classes from the
-   * platform.
+   * This is a slightly different implementation of the first part of [findParentElement] using more utility classes
+   * from the platform.
    *
    * @see [MarkdownActionUtil]
    * @see [MarkdownIntroduceLinkReferenceAction.java](https://tinyurl.com/ufw3kll)
