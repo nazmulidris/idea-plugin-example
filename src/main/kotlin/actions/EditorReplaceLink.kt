@@ -40,6 +40,10 @@ import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import printDebugHeader
 import printlnAndLog
 
+private fun transformLinkDestination(destination: String): String {
+  return "$destination/home"
+}
+
 class EditorReplaceLink : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
     printDebugHeader()
@@ -123,28 +127,27 @@ class EditorReplaceLink : AnAction() {
 
     val linkTextElement = findChildElement(parentLinkElement, MarkdownTokenTypeSets.LINK_TEXT)
     val textElement = findChildElement(linkTextElement, MarkdownTokenTypes.TEXT)
-    val linkDestElement = findChildElement(parentLinkElement, MarkdownTokenTypeSets.LINK_DESTINATION)
+    val linkDestinationElement = findChildElement(parentLinkElement, MarkdownTokenTypeSets.LINK_DESTINATION)
 
     val linkText = textElement?.text
-    val linkDest = linkDestElement?.text
+    val linkDestination = linkDestinationElement?.text
 
     parentLinkElement?.apply {
       ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
-      ANSI_GREEN("linkText: $linkText, linkDest: $linkDest").printlnAndLog()
+      ANSI_GREEN("linkText: $linkText, linkDest: $linkDestination").printlnAndLog()
     }
 
-    if (linkText == null || linkDest == null) return
+    if (linkText == null || linkDestination == null) return
 
     // Create a replacement link destination.
-    val replacementLinkElement = createNewLinkElement(project, linkText, linkDest + "/newlink")
+    val replacementLinkElement = createNewLinkElement(project, linkText, transformLinkDestination(linkDestination))
 
     // Replace the original link destination in the [parentLinkElement] w/ the new one.
     if (parentLinkElement != null && replacementLinkElement != null) parentLinkElement.replace(replacementLinkElement)
 
   }
 
-  private fun createNewLinkElement(project: Project, linkText: String, linkDestination: String
-  ): PsiElement? {
+  private fun createNewLinkElement(project: Project, linkText: String, linkDestination: String): PsiElement? {
     val markdownText = "[$linkText]($linkDestination)"
     val newFile = MarkdownPsiElementFactory.createFile(project, markdownText)
     val newParentLinkElement = findChildElement(newFile, MarkdownTokenTypeSets.LINKS)
