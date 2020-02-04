@@ -73,7 +73,7 @@ class EditorReplaceLink : AnAction() {
     printDebugHeader()
     ANSI_RED(whichThread()).printlnAndLog()
 
-    // Acquire a real lock in order to find the link information.
+    // Acquire a read lock in order to find the link information.
     val linkInfo = runReadAction { findLink(editor, project, psiFile) }
 
     checkCancelled()
