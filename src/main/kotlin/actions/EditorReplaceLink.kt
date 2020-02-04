@@ -207,6 +207,7 @@ class EditorReplaceLink : AnAction() {
   class CheckCancelled(val indicator: ProgressIndicator, val project: Project) {
     operator fun invoke() {
       printDebugHeader()
+
       ANSI_RED(whichThread()).printlnAndLog()
       ANSI_YELLOW("Checking for cancellation").printlnAndLog()
 
@@ -219,6 +220,9 @@ class EditorReplaceLink : AnAction() {
                   project, "Task was cancelled", "Cancelled")
             }
       }
+
+      indicator.checkCanceled()
+      // can use ProgressManager.checkCancelled() as well
     }
   }
 
