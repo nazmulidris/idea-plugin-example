@@ -67,8 +67,9 @@ class EditorReplaceLink : AnAction() {
                                               indicator: ProgressIndicator
   ) {
     printDebugHeader()
+    ANSI_RED(whichThread()).printlnAndLog()
 
-    // The write command action enables undo.
+    // The write command action enables undo. The lambda inside of this call runs in the EDT.
     WriteCommandAction.runWriteCommandAction(project) {
       if (!psiFile.isValid) return@runWriteCommandAction
 
