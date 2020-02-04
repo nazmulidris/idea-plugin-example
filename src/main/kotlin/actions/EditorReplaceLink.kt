@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
@@ -40,12 +41,15 @@ import org.intellij.plugins.markdown.lang.psi.MarkdownPsiElementFactory
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import printDebugHeader
 import printlnAndLog
+import urlshortenservice.shorten
 import whichThread
 
-private fun transformLinkDestination(destination: String): String {
-  return "$destination/home"
-}
-
+/**
+ * Note: You can find a slightly different implementation of [findParentElement] using more utility classes from the
+ * platform in the following places:
+ * - [MarkdownActionUtil]
+ * - [MarkdownIntroduceLinkReferenceAction.java](https://tinyurl.com/ufw3kll)
+ */
 class EditorReplaceLink : AnAction() {
   private lateinit var checkCancelled: CheckCancelled
 
@@ -69,15 +73,30 @@ class EditorReplaceLink : AnAction() {
     printDebugHeader()
     ANSI_RED(whichThread()).printlnAndLog()
 
-    // The write command action enables undo. The lambda inside of this call runs in the EDT.
+    // Acquire a real lock in order to find the link information.
+    val linkInfo = runReadAction { findLink(editor, project, psiFile) }
+
+    checkCancelled()
+
+    // Actually shorten the link in this background thread (ok to block here).
+    if (linkInfo == null) return
+    linkInfo.linkDestination = shorten(linkInfo.linkDestination) // Blocking call, does network IO.
+
+    checkCancelled()
+
+    // Mutate the PSI in this write command action.
+    // - The write command action enables undo.
+    // - The lambda inside of this call runs in the EDT.
     WriteCommandAction.runWriteCommandAction(project) {
       if (!psiFile.isValid) return@runWriteCommandAction
       ANSI_RED(whichThread()).printlnAndLog()
-      replaceLink(editor, project, psiFile)
+      replaceExistingLinkWith(project, linkInfo)
     }
 
     checkCancelled()
   }
+
+  data class LinkInfo(var parentLinkElement: PsiElement, var linkText: String, var linkDestination: String)
 
   /**
    * This function tries to find the first element which is a link, by walking up the tree starting w/ the element that
@@ -120,7 +139,7 @@ class EditorReplaceLink : AnAction() {
    * PsiElement(Markdown:Markdown:EOL)('\n')(1498,1499)
    * ```
    */
-  private fun replaceLink(editor: Editor, project: Project, psiFile: PsiFile) {
+  private fun findLink(editor: Editor, project: Project, psiFile: PsiFile): LinkInfo? {
     printDebugHeader()
 
     val offset = editor.caretModel.offset
@@ -136,19 +155,19 @@ class EditorReplaceLink : AnAction() {
     val linkText = textElement?.text
     val linkDestination = linkDestinationElement?.text
 
-    parentLinkElement?.apply {
-      ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
-      ANSI_GREEN("linkText: $linkText, linkDest: $linkDestination").printlnAndLog()
-    }
+    if (linkText == null || linkDestination == null || parentLinkElement == null) return null
 
-    if (linkText == null || linkDestination == null) return
+    ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
+    ANSI_GREEN("linkText: $linkText, linkDest: $linkDestination").printlnAndLog()
+    return LinkInfo(parentLinkElement, linkText, linkDestination)
+  }
 
+  private fun replaceExistingLinkWith(project: Project, newLinkInfo: LinkInfo) {
     // Create a replacement link destination.
-    val replacementLinkElement = createNewLinkElement(project, linkText, transformLinkDestination(linkDestination))
+    val replacementLinkElement = createNewLinkElement(project, newLinkInfo.linkText, newLinkInfo.linkDestination)
 
     // Replace the original link destination in the [parentLinkElement] w/ the new one.
-    if (parentLinkElement != null && replacementLinkElement != null) parentLinkElement.replace(replacementLinkElement)
-
+    if (replacementLinkElement != null) newLinkInfo.parentLinkElement.replace(replacementLinkElement)
   }
 
   private fun createNewLinkElement(project: Project, linkText: String, linkDestination: String): PsiElement? {
@@ -216,21 +235,6 @@ class EditorReplaceLink : AnAction() {
       indicator.checkCanceled()
       // can use ProgressManager.checkCancelled() as well
     }
-  }
-
-  /**
-   * This is a slightly different implementation of the first part of [findParentElement] using more utility classes
-   * from the platform.
-   *
-   * @see [MarkdownActionUtil]
-   * @see [MarkdownIntroduceLinkReferenceAction.java](https://tinyurl.com/ufw3kll)
-   */
-  private fun findFirstParentOfElementOfTypeLink(editor: Editor, psiFile: PsiFile): PsiElement? {
-    val caret = editor.caretModel.currentCaret
-    val elements = MarkdownActionUtil.getElementsUnderCaretOrSelection(psiFile, caret)
-    return if (elements != null) MarkdownActionUtil
-        .getCommonTopmostParentOfTypes(elements.getFirst(), elements.getSecond(), MarkdownTokenTypeSets.LINKS)
-    else null
   }
 
   override fun update(e: AnActionEvent) = mustHaveProjectAndEditor(e)

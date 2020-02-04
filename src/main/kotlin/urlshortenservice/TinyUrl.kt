@@ -30,9 +30,9 @@ import java.net.URLEncoder
  * - https://stackoverflow.com/questions/1485708/how-do-i-do-a-http-get-in-java
  */
 
-fun shorten(arg: String = "https://en.wikipedia.org/wiki/Cache_replacement_policies#Last_in_first_out_(LIFO)"): String {
+fun shorten(longUrl: String = "https://en.wikipedia.org/wiki/Cache_replacement_policies#Last_in_first_out_(LIFO)"): String {
 
-  val url: URL = URL(arg)
+  val url: URL = URL(longUrl)
 
   // println("arg = $arg")
 
