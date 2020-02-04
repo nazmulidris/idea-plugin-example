@@ -77,7 +77,7 @@ class EditorReplaceLink : AnAction() {
     WriteCommandAction.runWriteCommandAction(project) {
       if (!psiFile.isValid) return@runWriteCommandAction
       ANSI_RED(whichThread()).printlnAndLog()
-      replaceLink(editor, project, psiFile, checkCancelled)
+      replaceLink(editor, project, psiFile)
     }
 
     checkCancelled()
@@ -124,11 +124,7 @@ class EditorReplaceLink : AnAction() {
    * PsiElement(Markdown:Markdown:EOL)('\n')(1498,1499)
    * ```
    */
-  private fun replaceLink(editor: Editor,
-                          project: Project,
-                          psiFile: PsiFile,
-                          checkCancelled: CheckCancelled
-  ) {
+  private fun replaceLink(editor: Editor, project: Project, psiFile: PsiFile) {
     printDebugHeader()
 
     val offset = editor.caretModel.offset
