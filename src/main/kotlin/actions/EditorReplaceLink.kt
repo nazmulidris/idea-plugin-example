@@ -15,18 +15,18 @@
  */
 package actions
 
-import Colors.ANSI_GREEN
-import Colors.ANSI_RED
+import Colors.*
 import actions.EditorBaseAction.mustHaveProjectAndEditor
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor
@@ -47,6 +47,8 @@ private fun transformLinkDestination(destination: String): String {
 }
 
 class EditorReplaceLink : AnAction() {
+  private lateinit var checkCancelled: CheckCancelled
+
   override fun actionPerformed(e: AnActionEvent) {
     printDebugHeader()
 
@@ -56,15 +58,17 @@ class EditorReplaceLink : AnAction() {
     val progressTitle = "Doing heavy PSI mutation"
 
     object : Task.Backgroundable(project, progressTitle) {
-      override fun run(indicator: ProgressIndicator) =
-          doWorkInBackgroundWithWriteLock(editor, psiFile, project, indicator)
+      override fun run(indicator: ProgressIndicator) {
+        checkCancelled = CheckCancelled(indicator, project)
+        doWorkInBackgroundWithWriteLock(editor, psiFile, project, checkCancelled)
+      }
     }.queue()
   }
 
   private fun doWorkInBackgroundWithWriteLock(editor: Editor,
                                               psiFile: PsiFile,
                                               project: Project,
-                                              indicator: ProgressIndicator
+                                              checkCancelled: CheckCancelled
   ) {
     printDebugHeader()
     ANSI_RED(whichThread()).printlnAndLog()
@@ -75,11 +79,17 @@ class EditorReplaceLink : AnAction() {
 
       ANSI_RED(whichThread()).printlnAndLog()
 
-      replaceLink(editor, project, psiFile)
+      replaceLink(editor, project, psiFile, checkCancelled)
 
+      checkCancelled()
+
+/*
       val document = editor.document
       PsiDocumentManager.getInstance(project).commitDocument(document)
+*/
     }
+
+    checkCancelled()
   }
 
   /**
@@ -123,7 +133,11 @@ class EditorReplaceLink : AnAction() {
    * PsiElement(Markdown:Markdown:EOL)('\n')(1498,1499)
    * ```
    */
-  private fun replaceLink(editor: Editor, project: Project, psiFile: PsiFile) {
+  private fun replaceLink(editor: Editor,
+                          project: Project,
+                          psiFile: PsiFile,
+                          checkCancelled: CheckCancelled
+  ) {
     printDebugHeader()
 
     val offset = editor.caretModel.offset
@@ -172,6 +186,7 @@ class EditorReplaceLink : AnAction() {
         object : FindElement<PsiElement>() {
           // If found, returns false. Otherwise returns true.
           override fun execute(each: PsiElement): Boolean {
+            checkCancelled()
             if (tokenSet.contains(each.node.elementType)) return setFound(each)
             else return true
           }
@@ -179,6 +194,7 @@ class EditorReplaceLink : AnAction() {
 
     element.accept(object : PsiRecursiveElementWalkingVisitor() {
       override fun visitElement(element: PsiElement) {
+        checkCancelled()
         val isFound = !processor.execute(element)
         if (isFound) stopWalking()
         else super.visitElement(element)
@@ -189,11 +205,28 @@ class EditorReplaceLink : AnAction() {
   }
 
   private fun findParentElement(element: PsiElement?, tokenSet: TokenSet): PsiElement? {
-    when (element) {
-      null -> return null
-      else -> return PsiTreeUtil.findFirstParent(element, false) {
-        val node = it.node
-        node != null && tokenSet.contains(node.elementType)
+    if (element == null) return null
+    return PsiTreeUtil.findFirstParent(element, false) {
+      checkCancelled()
+      val node = it.node
+      node != null && tokenSet.contains(node.elementType)
+    }
+  }
+
+  class CheckCancelled(val indicator: ProgressIndicator, val project: Project) {
+    operator fun invoke() {
+      printDebugHeader()
+      ANSI_RED(whichThread()).printlnAndLog()
+      ANSI_YELLOW("Checking for cancellation").printlnAndLog()
+
+      if (indicator.isCanceled) {
+        ANSI_RED("Task was cancelled").printlnAndLog()
+        ApplicationManager
+            .getApplication()
+            .invokeLater {
+              Messages.showWarningDialog(
+                  project, "Task was cancelled", "Cancelled")
+            }
       }
     }
   }
