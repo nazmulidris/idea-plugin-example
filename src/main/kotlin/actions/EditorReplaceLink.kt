@@ -60,16 +60,12 @@ class EditorReplaceLink : AnAction() {
     object : Task.Backgroundable(project, progressTitle) {
       override fun run(indicator: ProgressIndicator) {
         checkCancelled = CheckCancelled(indicator, project)
-        doWorkInBackgroundWithWriteLock(editor, psiFile, project, checkCancelled)
+        doWorkInBackground(editor, psiFile, project)
       }
     }.queue()
   }
 
-  private fun doWorkInBackgroundWithWriteLock(editor: Editor,
-                                              psiFile: PsiFile,
-                                              project: Project,
-                                              checkCancelled: CheckCancelled
-  ) {
+  private fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project) {
     printDebugHeader()
     ANSI_RED(whichThread()).printlnAndLog()
 
