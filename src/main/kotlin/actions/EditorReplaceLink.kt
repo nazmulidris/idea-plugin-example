@@ -35,6 +35,7 @@ import com.intellij.psi.search.PsiElementProcessor.FindElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
+import notify
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypes
 import org.intellij.plugins.markdown.lang.psi.MarkdownPsiElementFactory
@@ -62,14 +63,20 @@ class EditorReplaceLink : AnAction() {
     val progressTitle = "Doing heavy PSI mutation"
 
     object : Task.Backgroundable(project, progressTitle) {
+      var result: Boolean = false
+
       override fun run(indicator: ProgressIndicator) {
         checkCancelled = CheckCancelled(indicator, project)
-        doWorkInBackground(editor, psiFile, project)
+        result = doWorkInBackground(editor, psiFile, project)
+      }
+
+      override fun onFinished() {
+        Pair("Background task completed", if (result) "Link shortened" else "Nothing to do").notify()
       }
     }.queue()
   }
 
-  private fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project) {
+  private fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {
     printDebugHeader()
     ANSI_RED(whichThread()).printlnAndLog()
 
@@ -79,7 +86,7 @@ class EditorReplaceLink : AnAction() {
     checkCancelled()
 
     // Actually shorten the link in this background thread (ok to block here).
-    if (linkInfo == null) return
+    if (linkInfo == null) return false
     linkInfo.linkDestination = shorten(linkInfo.linkDestination) // Blocking call, does network IO.
 
     checkCancelled()
@@ -94,6 +101,8 @@ class EditorReplaceLink : AnAction() {
     }
 
     checkCancelled()
+
+    return true
   }
 
   data class LinkInfo(var parentLinkElement: PsiElement, var linkText: String, var linkDestination: String)
