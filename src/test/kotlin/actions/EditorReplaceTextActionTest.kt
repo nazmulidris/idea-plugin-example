@@ -18,12 +18,20 @@ package actions
 
 import TestFile
 import TestUtils.Companion.computeBasePath
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.testFramework.LightPlatformCodeInsightTestCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
+import java.io.File
 
-class EditorReplaceTextActionTest : BasePlatformTestCase() {
+/**
+ * This test extends [LightPlatformCodeInsightTestCase] and not [BasePlatformTestCase]. Check out this example
+ * [MarkdownToggleBoldTest.java](https://tinyurl.com/vrw8q4e). Couple of differences to note:
+ * 1. The [computeBasePath] doesn't work for this fixture and needs a separator postfix.
+ * 2. There is no need to check the action's presentation to see whether it has been enabled, since this is done for
+ * you by [executeAction].
+ */
+class EditorReplaceTextActionTest : LightPlatformCodeInsightTestCase() {
 
   @Before
   public override fun setUp() {
@@ -32,20 +40,18 @@ class EditorReplaceTextActionTest : BasePlatformTestCase() {
   }
 
   override fun getTestDataPath(): String {
-    return computeBasePath()
+    return computeBasePath() + File.separator
   }
 
   @Test
   fun testSelectedTextIsReplaced() {
     // Load test file w/ text selected.
-    myFixture.configureByFile(TestFile.Input)
+    configureByFile(TestFile.Input)
 
     // Try and perform the action.
-    val presentation = myFixture.testAction(EditorReplaceTextAction())
-    assertThat(presentation.isEnabledAndVisible).isTrue()
+    executeAction("MyPlugin.EditorReplaceText")
 
-    // Assert that the changes are what we expect by comparing it to output
-    // file.
-    myFixture.checkResultByFile(TestFile.Output)
+    // Assert that the changes are what we expect by comparing it to output file.
+    checkResultByFile(TestFile.Output)
   }
 }
