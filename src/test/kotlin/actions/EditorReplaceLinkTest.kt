@@ -58,9 +58,9 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
     val executor = Executors.newSingleThreadExecutor()
 
-    executor.submit {
+    val future = executor.submit {
       while (true) {
-        ANSI_BLUE("isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}").printlnAndLog()
+        ANSI_BLUE("executor: isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}").printlnAndLog()
         if (action.isRunning() == NOT_STARTED) {
           shortSleep()
           continue
@@ -79,7 +79,12 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
     myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
 
+    ANSI_BLUE("executor: future.isDone: ${future.isDone}").printlnAndLog()
+
     executor.awaitTermination(30, TimeUnit.SECONDS)
+
+    ANSI_BLUE("executor: future.isDone: ${future.isDone}").printlnAndLog()
+
     executor.shutdown()
   }
 
