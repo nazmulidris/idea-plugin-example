@@ -45,6 +45,11 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
   }
 
   @Test
+  fun testTheActionByConnectingWithTinyUrlServiceLive() {
+    // TODO 🔥 Try to do a full integration test against tinyurl service, and figure out how to deal w/ timeouts. 🔥
+  }
+
+  @Test
   fun testEditorReplaceLink() {
     printDebugHeader()
 
