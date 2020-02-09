@@ -33,6 +33,10 @@ fun longSleep() {
   sleep(100 * 20)
 }
 
+fun shortSleep() {
+  sleep(20)
+}
+
 fun printDebugHeader() {
   val stackTrace = Thread.currentThread().stackTrace[2]
   ANSI_PURPLE(

@@ -17,6 +17,7 @@ package actions
 
 import Colors.*
 import actions.EditorBaseAction.mustHaveProjectAndEditor
+import actions.EditorReplaceLink.RunningState.*
 import com.google.common.annotations.VisibleForTesting
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.AnAction
@@ -56,7 +57,8 @@ import whichThread
  */
 class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : AnAction() {
   private lateinit var checkCancelled: CheckCancelled
-  private val indicator: ProgressIndicator? = null
+  @VisibleForTesting
+  private var myIndicator: ProgressIndicator? = null
 
   override fun actionPerformed(e: AnActionEvent) {
     printDebugHeader()
@@ -66,12 +68,15 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
     val progressTitle = "Doing heavy PSI mutation"
 
-    if (PluginManagerCore.isUnitTestMode) ANSI_RED("🔥 Is in unit testing mode 🔥️").printlnAndLog()
-
     object : Task.Backgroundable(project, progressTitle) {
       var result: Boolean = false
 
       override fun run(indicator: ProgressIndicator) {
+        if (PluginManagerCore.isUnitTestMode) {
+          ANSI_RED("🔥 Is in unit testing mode 🔥️").printlnAndLog()
+          // Save a reference to this indicator for testing.
+          myIndicator = indicator
+        }
         checkCancelled = CheckCancelled(indicator, project)
         result = doWorkInBackground(editor, psiFile, project)
       }
@@ -82,15 +87,26 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     }.queue()
   }
 
-  @VisibleForTesting
-  fun isRunning(): Boolean {
-    return indicator?.isRunning ?: false
+  enum class RunningState {
+    NOT_STARTED, IS_RUNNING, HAS_STOPPED, IS_CANCELLED
   }
 
   @VisibleForTesting
-  fun isCanceled(): Boolean {
-    return indicator?.isCanceled ?: false
+  fun isRunning(): RunningState {
+    if (myIndicator == null) {
+      return NOT_STARTED
+    }
+    else {
+      return when {
+        myIndicator!!.isCanceled -> IS_CANCELLED
+        myIndicator!!.isRunning  -> IS_RUNNING
+        else                     -> HAS_STOPPED
+      }
+    }
   }
+
+  @VisibleForTesting
+  fun isCanceled(): Boolean = myIndicator?.isCanceled ?: false
 
   @VisibleForTesting
   fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {

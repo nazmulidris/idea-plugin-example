@@ -19,13 +19,16 @@ package actions
 import Colors.ANSI_BLUE
 import TestFile
 import TestUtils.Companion.computeBasePath
+import actions.EditorReplaceLink.RunningState.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import printDebugHeader
 import printlnAndLog
-import sleep
+import shortSleep
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class EditorReplaceLinkTest : BasePlatformTestCase() {
 
@@ -46,7 +49,38 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
   @Test
   fun testTheActionByConnectingWithTinyUrlServiceLive() {
-    // TODO 🔥 Try to do a full integration test against tinyurl service, and figure out how to deal w/ timeouts. 🔥
+    printDebugHeader()
+
+    // Load test file w/ text selected.
+    myFixture.configureByFile(TestFile.Input(getTestName(false)))
+
+    val action = EditorReplaceLink()
+
+    val executor = Executors.newSingleThreadExecutor()
+
+    executor.submit {
+      while (true) {
+        ANSI_BLUE("isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}").printlnAndLog()
+        if (action.isRunning() == NOT_STARTED) {
+          shortSleep()
+          continue
+        }
+        if (action.isRunning() == IS_CANCELLED || action.isRunning() == HAS_STOPPED) {
+          executor.shutdown()
+          break
+        }
+        else shortSleep()
+      }
+    }
+
+    val presentation = myFixture.testAction(action)
+
+    assertThat(presentation.isEnabledAndVisible).isTrue()
+
+    myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
+
+    executor.awaitTermination(30, TimeUnit.SECONDS)
+    executor.shutdown()
   }
 
   @Test
@@ -61,16 +95,6 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     })
 
     val presentation = myFixture.testAction(action)
-
-    // The following code only executes after the entire action has run to completion! Basically the following code
-    // does not do anything useful.
-    while (true) {
-      ANSI_BLUE("isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}").printlnAndLog()
-      if (action.isRunning()) continue
-      if (action.isCanceled()) break
-      if (!action.isRunning()) break
-      sleep()
-    }
 
     assertThat(presentation.isEnabledAndVisible).isTrue()
 
