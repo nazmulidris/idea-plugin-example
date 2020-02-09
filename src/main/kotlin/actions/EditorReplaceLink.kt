@@ -17,6 +17,8 @@ package actions
 
 import Colors.*
 import actions.EditorBaseAction.mustHaveProjectAndEditor
+import com.google.common.annotations.VisibleForTesting
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -42,7 +44,8 @@ import org.intellij.plugins.markdown.lang.psi.MarkdownPsiElementFactory
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import printDebugHeader
 import printlnAndLog
-import urlshortenservice.shorten
+import urlshortenservice.ShortenUrlService
+import urlshortenservice.TinyUrl
 import whichThread
 
 /**
@@ -51,8 +54,9 @@ import whichThread
  * - [MarkdownActionUtil]
  * - [MarkdownIntroduceLinkReferenceAction.java](https://tinyurl.com/ufw3kll)
  */
-class EditorReplaceLink : AnAction() {
+class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : AnAction() {
   private lateinit var checkCancelled: CheckCancelled
+  private val indicator: ProgressIndicator? = null
 
   override fun actionPerformed(e: AnActionEvent) {
     printDebugHeader()
@@ -61,6 +65,8 @@ class EditorReplaceLink : AnAction() {
     val psiFile = e.getRequiredData(CommonDataKeys.PSI_FILE)
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
     val progressTitle = "Doing heavy PSI mutation"
+
+    if (PluginManagerCore.isUnitTestMode) ANSI_RED("🔥 Is in unit testing mode 🔥️").printlnAndLog()
 
     object : Task.Backgroundable(project, progressTitle) {
       var result: Boolean = false
@@ -76,7 +82,18 @@ class EditorReplaceLink : AnAction() {
     }.queue()
   }
 
-  private fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {
+  @VisibleForTesting
+  fun isRunning(): Boolean {
+    return indicator?.isRunning ?: false
+  }
+
+  @VisibleForTesting
+  fun isCanceled(): Boolean {
+    return indicator?.isCanceled ?: false
+  }
+
+  @VisibleForTesting
+  fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {
     printDebugHeader()
     ANSI_RED(whichThread()).printlnAndLog()
 
@@ -87,7 +104,7 @@ class EditorReplaceLink : AnAction() {
 
     // Actually shorten the link in this background thread (ok to block here).
     if (linkInfo == null) return false
-    linkInfo.linkDestination = shorten(linkInfo.linkDestination) // Blocking call, does network IO.
+    linkInfo.linkDestination = shortenUrlService.shorten(linkInfo.linkDestination) // Blocking call, does network IO.
 
     checkCancelled()
 
@@ -224,9 +241,14 @@ class EditorReplaceLink : AnAction() {
     }
   }
 
-  class CheckCancelled(val indicator: ProgressIndicator, val project: Project) {
+  /**
+   * Both parameters are marked Nullable for testing. In unit tests, a class of this object is not created.
+   */
+  class CheckCancelled(private val indicator: ProgressIndicator?, private val project: Project?) {
     operator fun invoke() {
       printDebugHeader()
+
+      if (indicator == null || project == null) return
 
       ANSI_RED(whichThread()).printlnAndLog()
       ANSI_YELLOW("Checking for cancellation").printlnAndLog()

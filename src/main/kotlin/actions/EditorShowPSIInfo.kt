@@ -15,7 +15,8 @@
  */
 package actions
 
-import Colors.*
+import Colors.ANSI_RED
+import Colors.ANSI_YELLOW
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -29,18 +30,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
+import longSleep
 import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownParagraphImpl
 import printDebugHeader
 import printlnAndLog
+import sleep
 import whichThread
 
 
 internal class EditorShowPSIInfo : AnAction() {
-  private val sleepDurationMs: Long = 100
-
   private data class Count(var paragraph: Int = 0, var links: Int = 0, var header: Int = 0)
 
   private val count = Count()
@@ -113,7 +114,7 @@ internal class EditorShowPSIInfo : AnAction() {
 
     val javaPsiInfo = buildString {
 
-      sleep(sleepDurationMs * 20)
+      longSleep()
       checkCancelled(indicator, project)
 
       element?.apply {
@@ -199,13 +200,6 @@ internal class EditorShowPSIInfo : AnAction() {
 
     return count.toString()
 
-  }
-
-  private fun sleep(durationMs: Long = sleepDurationMs) {
-    val formattedDuration = "%.3f sec".format(durationMs / 1000f)
-    ANSI_YELLOW(whichThread() + ANSI_RED(" sleeping for $formattedDuration 😴")).printlnAndLog()
-    Thread.sleep(durationMs)
-    ANSI_YELLOW(whichThread() + ANSI_BLUE(" awake 😳")).printlnAndLog()
   }
 
   private fun Set<Language>.contains(language: String): Boolean =

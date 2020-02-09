@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-import Colors.ANSI_CYAN
-import Colors.ANSI_PURPLE
+import Colors.*
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationListener.UrlOpeningListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager.getApplication
 import services.LogService
+
+fun sleep(durationMs: Long = 100) {
+  val formattedDuration = "%.3f sec".format(durationMs / 1000f)
+  ANSI_YELLOW(whichThread() + ANSI_RED(" sleeping for $formattedDuration 😴")).printlnAndLog()
+  Thread.sleep(durationMs)
+  ANSI_YELLOW(whichThread() + ANSI_BLUE(" awake 😳")).printlnAndLog()
+}
+
+fun longSleep() {
+  sleep(100 * 20)
+}
 
 fun printDebugHeader() {
   val stackTrace = Thread.currentThread().stackTrace[2]

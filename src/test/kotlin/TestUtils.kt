@@ -65,4 +65,6 @@ class TestUtils {
 object TestFile {
   val Input = "input-file.md"
   val Output = "output-file.md"
+  fun Input(prefix: String): String = "$prefix-$Input"
+  fun Output(prefix: String): String = "$prefix-$Output"
 }

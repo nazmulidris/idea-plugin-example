@@ -23,53 +23,55 @@ import java.net.URI
 import java.net.URL
 import java.net.URLEncoder
 
-/**
- * More info:
- * - `curl https://tinyurl.com/api-create.php?url="{query}"`
- * - https://stackoverflow.com/questions/724043/http-url-address-encoding-in-java
- * - https://stackoverflow.com/questions/1485708/how-do-i-do-a-http-get-in-java
- */
+class TinyUrl : ShortenUrlService {
+  /**
+   * More info:
+   * - `curl https://tinyurl.com/api-create.php?url="{query}"`
+   * - https://stackoverflow.com/questions/724043/http-url-address-encoding-in-java
+   * - https://stackoverflow.com/questions/1485708/how-do-i-do-a-http-get-in-java
+   */
+  override fun shorten(longUrl: String): String {
 
-fun shorten(longUrl: String = "https://en.wikipedia.org/wiki/Cache_replacement_policies#Last_in_first_out_(LIFO)"): String {
+    val url: URL = URL(longUrl)
 
-  val url: URL = URL(longUrl)
+    // println("arg = $arg")
 
-  // println("arg = $arg")
+    // with(url) {
+    //     println("protocol = $protocol")
+    //     println("userInfo = $userInfo")
+    //     println("host     = $host")
+    //     println("port     = $port")
+    //     println("path     = $path")
+    //     println("query    = $query")
+    //     println("ref      = $ref")
+    // }
 
-  // with(url) {
-  //     println("protocol = $protocol")
-  //     println("userInfo = $userInfo")
-  //     println("host     = $host")
-  //     println("port     = $port")
-  //     println("path     = $path")
-  //     println("query    = $query")
-  //     println("ref      = $ref")
-  // }
+    val uri: URI = with(url) { URI(protocol, userInfo, host, port, path, query, ref) }
+    val encodedUri: String = uri.toURL().toString()
 
-  val uri: URI = with(url) { URI(protocol, userInfo, host, port, path, query, ref) }
-  val encodedUri: String = uri.toURL().toString()
+    // println(encodedUri)
 
-  // println(encodedUri)
+    val tinyUrl = "https://tinyurl.com/api-create.php?url=${URLEncoder.encode(encodedUri, "UTF-8")}"
 
-  val tinyUrl = "https://tinyurl.com/api-create.php?url=${URLEncoder.encode(encodedUri, "UTF-8")}"
+    // println(tinyUrl)
 
-  // println(tinyUrl)
+    val connection = URL(tinyUrl).openConnection() as HttpURLConnection
+    connection.requestMethod = "GET"
+    val reader = BufferedReader(InputStreamReader(connection.inputStream))
 
-  val connection = URL(tinyUrl).openConnection() as HttpURLConnection
-  connection.requestMethod = "GET"
-  val reader = BufferedReader(InputStreamReader(connection.inputStream))
+    val response = StringBuilder()
 
-  val response = StringBuilder()
+    var line: String? = ""
 
-  var line: String? = ""
+    while (line != null) {
+      line = reader.readLine()
+      line?.apply { response.append(this) }
+    }
 
-  while (line != null) {
-    line = reader.readLine()
-    line?.apply { response.append(this) }
+    reader.close()
+
+    return response.toString()
+
   }
-
-  reader.close()
-
-  return response.toString()
 
 }
