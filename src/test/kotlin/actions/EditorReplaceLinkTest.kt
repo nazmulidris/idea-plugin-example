@@ -47,6 +47,9 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     // TODO 🔥 Is it possible to simply test the main function invoked by the action itself in the test. 🔥
   }
 
+  /**
+   * [Further reading on Future and Executor](https://www.callicoder.com/java-callable-and-future-tutorial/)
+   */
   @Test
   fun testTheActionByConnectingWithTinyUrlServiceLive() {
     printDebugHeader()
