@@ -298,7 +298,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
       }
 
       indicator.checkCanceled()
-      // can use ProgressManager.checkCancelled() as well
+      // Can use ProgressManager.checkCancelled() as well, if we don't want to pass the indicator around.
     }
   }
 
