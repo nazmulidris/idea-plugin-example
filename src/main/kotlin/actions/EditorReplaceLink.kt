@@ -56,7 +56,11 @@ import whichThread
  * - [MarkdownIntroduceLinkReferenceAction.java](https://tinyurl.com/ufw3kll)
  */
 class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : AnAction() {
-  private var checkCancelled: CheckCancelled? = null
+  /**
+   * For some tests this is not initialized, but accessed when running [doWorkInBackground]. Use [performCheck]
+   * instead of a direct call to `CheckCancelled.invoke()`.
+   */
+  private lateinit var checkCancelled: CheckCancelled
   @VisibleForTesting
   private var myIndicator: ProgressIndicator? = null
 
@@ -111,7 +115,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
   /**
    * This function returns true when it executes successfully. If there is no work for this function to do then it
    * returns false. However, if the task is cancelled (when wrapped w/ a [Task.Backgroundable], then it will throw
-   * an exception (and aborts) when [checkCancelled] is called.
+   * an exception (and aborts) when [performCheck] is called.
    */
   @VisibleForTesting
   fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {
@@ -121,13 +125,13 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     // Acquire a read lock in order to find the link information.
     val linkInfo = runReadAction { findLink(editor, project, psiFile) }
 
-    checkCancelled?.invoke()
+    performCheck()
 
     // Actually shorten the link in this background thread (ok to block here).
     if (linkInfo == null) return false
     linkInfo.linkDestination = shortenUrlService.shorten(linkInfo.linkDestination) // Blocking call, does network IO.
 
-    checkCancelled?.invoke()
+    performCheck()
 
     // Mutate the PSI in this write command action.
     // - The write command action enables undo.
@@ -138,7 +142,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
       replaceExistingLinkWith(project, linkInfo)
     }
 
-    checkCancelled?.invoke()
+    performCheck()
 
     return true
   }
@@ -235,7 +239,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
         object : FindElement<PsiElement>() {
           // If found, returns false. Otherwise returns true.
           override fun execute(each: PsiElement): Boolean {
-            checkCancelled?.invoke()
+            performCheck()
             if (tokenSet.contains(each.node.elementType)) return setFound(each)
             else return true
           }
@@ -243,7 +247,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
 
     element.accept(object : PsiRecursiveElementWalkingVisitor() {
       override fun visitElement(element: PsiElement) {
-        checkCancelled?.invoke()
+        performCheck()
         val isFound = !processor.execute(element)
         if (isFound) stopWalking()
         else super.visitElement(element)
@@ -256,9 +260,18 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
   private fun findParentElement(element: PsiElement?, tokenSet: TokenSet): PsiElement? {
     if (element == null) return null
     return PsiTreeUtil.findFirstParent(element, false) {
-      checkCancelled?.invoke()
+      performCheck()
       val node = it.node
       node != null && tokenSet.contains(node.elementType)
+    }
+  }
+
+  fun performCheck() {
+    try {
+      checkCancelled.invoke()
+    }
+    catch (e: UninitializedPropertyAccessException) {
+      // For some tests [checkCancelled] is not initialized. And accessing a lateinit var will throw an exception.
     }
   }
 
