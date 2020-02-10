@@ -27,8 +27,13 @@ import org.junit.Test
 import printDebugHeader
 import printlnAndLog
 import shortSleep
+import urlshortenservice.ShortenUrlService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+
+val shortenUrlService = object : ShortenUrlService {
+  override fun shorten(longUrl: String) = "http://shorturl.com"
+}
 
 class EditorReplaceLinkTest : BasePlatformTestCase() {
 
@@ -44,7 +49,20 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
   @Test
   fun testUnderlyingFunctionUsedByTestEditorReplaceLinkAction() {
-    // TODO 🔥 Is it possible to simply test the main function invoked by the action itself in the test. 🔥
+    printDebugHeader()
+
+    val psiFile = myFixture.configureByFile(TestFile.Input(getTestName(false)))
+    val project = myFixture.project
+    val editor = myFixture.editor
+
+    val action = EditorReplaceLink(shortenUrlService)
+    val result = action.doWorkInBackground(editor, psiFile, project)
+    assertThat(result).isTrue()
+
+    val presentation = myFixture.testAction(action)
+    assertThat(presentation.isEnabledAndVisible).isTrue()
+
+    myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
   }
 
   /**
@@ -54,13 +72,11 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
   fun testTheActionByConnectingWithTinyUrlServiceLive() {
     printDebugHeader()
 
-    // Load test file w/ text selected.
     myFixture.configureByFile(TestFile.Input(getTestName(false)))
 
     val action = EditorReplaceLink()
 
     val executor = Executors.newSingleThreadExecutor()
-
     val future = executor.submit {
       while (true) {
         ANSI_BLUE("executor: isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}").printlnAndLog()
@@ -77,17 +93,13 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     }
 
     val presentation = myFixture.testAction(action)
-
     assertThat(presentation.isEnabledAndVisible).isTrue()
 
     myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
 
     ANSI_BLUE("executor: future.isDone: ${future.isDone}").printlnAndLog()
-
     executor.awaitTermination(30, TimeUnit.SECONDS)
-
     ANSI_BLUE("executor: future.isDone: ${future.isDone}").printlnAndLog()
-
     executor.shutdown()
   }
 
@@ -95,15 +107,11 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
   fun testEditorReplaceLink() {
     printDebugHeader()
 
-    // Load test file w/ text selected.
     myFixture.configureByFile(TestFile.Input(getTestName(false)))
 
-    val action = EditorReplaceLink(object : urlshortenservice.ShortenUrlService {
-      override fun shorten(longUrl: String) = "http://shorturl.com"
-    })
+    val action = EditorReplaceLink(shortenUrlService)
 
     val presentation = myFixture.testAction(action)
-
     assertThat(presentation.isEnabledAndVisible).isTrue()
 
     myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
