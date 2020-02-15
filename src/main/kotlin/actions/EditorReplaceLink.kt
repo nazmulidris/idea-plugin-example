@@ -27,6 +27,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
@@ -48,6 +49,7 @@ import printlnAndLog
 import urlshortenservice.ShortenUrlService
 import urlshortenservice.TinyUrl
 import whichThread
+import java.awt.datatransfer.StringSelection
 
 /**
  * Note: You can find a slightly different implementation of [findParentElement] using more utility classes from the
@@ -86,7 +88,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
       }
 
       override fun onFinished() {
-        Pair("Background task completed", if (result) "Link shortened" else "Nothing to do").notify()
+        Pair("Background task completed", if (result) "Link shortened & in clipboard" else "Nothing to do").notify()
       }
     }.queue()
   }
@@ -130,6 +132,8 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     // Actually shorten the link in this background thread (ok to block here).
     if (linkInfo == null) return false
     linkInfo.linkDestination = shortenUrlService.shorten(linkInfo.linkDestination) // Blocking call, does network IO.
+
+    CopyPasteManager.getInstance().setContents(StringSelection(linkInfo.linkDestination))
 
     callCheckCancelled()
 

@@ -20,6 +20,7 @@ import Colors.ANSI_BLUE
 import TestFile
 import TestUtils.Companion.computeBasePath
 import actions.EditorReplaceLink.RunningState.*
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -28,6 +29,7 @@ import printDebugHeader
 import printlnAndLog
 import shortSleep
 import urlshortenservice.ShortenUrlService
+import java.awt.datatransfer.DataFlavor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -95,6 +97,9 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     val presentation = myFixture.testAction(action)
     assertThat(presentation.isEnabledAndVisible).isTrue()
 
+    val textInClipboard = CopyPasteManager.getInstance().getContents<String>(DataFlavor.stringFlavor)
+    assertThat(textInClipboard).isEqualTo("https://tinyurl.com/mbq3m")
+
     myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
 
     ANSI_BLUE("executor: future.isDone: ${future.isDone}").printlnAndLog()
@@ -113,6 +118,9 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
     val presentation = myFixture.testAction(action)
     assertThat(presentation.isEnabledAndVisible).isTrue()
+
+    val textInClipboard = CopyPasteManager.getInstance().getContents<String>(DataFlavor.stringFlavor)
+    assertThat(textInClipboard).isSameAs(shortenUrlService.shorten())
 
     myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
   }
