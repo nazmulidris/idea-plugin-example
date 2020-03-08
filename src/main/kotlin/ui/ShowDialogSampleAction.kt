@@ -17,9 +17,35 @@ package ui
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.ui.DialogWrapper
+import notify
+import java.awt.BorderLayout
+import java.awt.Dimension
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPanel
 
+/**
+ * [Docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/dialog_wrapper.html).
+ */
 class ShowDialogSampleAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
-    TODO("Not yet implemented")
+    val response = SampleDialogWrapper().showAndGet()
+    Pair("Dialog", "Response selected:${if (response) "Yes" else "No"}").notify()
+  }
+}
+
+class SampleDialogWrapper : DialogWrapper(true) {
+  init {
+    init()
+    title = "Sample Dialog"
+  }
+
+  override fun createCenterPanel(): JComponent {
+    val panel = JPanel(BorderLayout())
+    val label = JLabel("Press OK or Cancel")
+    label.preferredSize = Dimension(100, 100)
+    panel.add(label, BorderLayout.CENTER)
+    return panel
   }
 }
