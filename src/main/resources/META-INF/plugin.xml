@@ -45,19 +45,15 @@
 
   <!-- Extension point for the application component above. -->
   <extensionPoints>
-    <extensionPoint name="configuratorRunnable"
-        interface="java.lang.Runnable" />
+    <extensionPoint name="configuratorRunnable" interface="java.lang.Runnable" />
   </extensionPoints>
 
   <!-- Extensions that run when the application component above is
   initialized. -->
-  <extensions
-      defaultExtensionNs="com.developerlife.example.idea-plugin-example">
-    <configuratorRunnable order="first"
-        implementation="extensions.AnInitializer"
+  <extensions defaultExtensionNs="com.developerlife.example.idea-plugin-example">
+    <configuratorRunnable order="first" implementation="extensions.AnInitializer"
         id="MyPlugin.extensions.AnInitializer" />
-    <configuratorRunnable order="last"
-        implementation="extensions.AnotherInitializer"
+    <configuratorRunnable order="last" implementation="extensions.AnotherInitializer"
         id="MyPlugin.extensions.AnotherInitializer" />
   </extensions>
 
@@ -69,10 +65,8 @@
   <!-- Add SearchOnStackOverflowAction to both the EditorPopupMenu and
   ConsoleEditorPopupMenu -->
   <actions>
-    <action id="MyPlugin.Editor.actions.SearchOnStackOverflowAction"
-        class="actions.SearchOnStackOverflowAction"
-        text="Search on Stack Overflow"
-        description="Search selected text on Stack Overflow"
+    <action id="MyPlugin.Editor.actions.SearchOnStackOverflowAction" class="actions.SearchOnStackOverflowAction"
+        text="Search on Stack Overflow" description="Search selected text on Stack Overflow"
         icon="/icons/ic_stackoverflow.svg">
       <add-to-group group-id="EditorPopupMenu" anchor="last" />
       <add-to-group group-id="ConsoleEditorPopupMenu" anchor="last" />
@@ -87,16 +81,14 @@
       <add-to-group group-id="MainMenu" anchor="last" />
 
       <!-- Add HelloAction to the Greeting menu -->
-      <action id="MyPlugin.actions.HelloAction" class="actions.HelloAction"
-          text="Hello" description="Says hello"
+      <action id="MyPlugin.actions.HelloAction" class="actions.HelloAction" text="Hello" description="Says hello"
           icon="/icons/ic_check_circle.svg">
         <add-to-group group-id="MainMenu" anchor="first" />
       </action>
 
       <!-- Add AskQuestionOnStackOverflowAction to the Greeting menu -->
-      <action id="MyPlugin.actions.AskQuestionOnStackOverflowAction"
-          class="actions.AskQuestionOnStackOverflowAction" text="Ask Question"
-          description="Opens a browser" icon="/icons/ic_stackoverflow.svg">
+      <action id="MyPlugin.actions.AskQuestionOnStackOverflowAction" class="actions.AskQuestionOnStackOverflowAction"
+          text="Ask Question" description="Opens a browser" icon="/icons/ic_stackoverflow.svg">
         <add-to-group group-id="MainMenu" anchor="last" />
       </action>
     </group>
@@ -104,20 +96,16 @@
 
   <!-- Add action to replace the selected text w/ something else -->
   <actions>
-    <action id="MyPlugin.EditorReplaceText"
-        class="actions.EditorReplaceTextAction" text="Replace Selected Text"
-        description="Simply replace selected text w/ something else"
-        icon="/icons/ic_extension.svg">
+    <action id="MyPlugin.EditorReplaceText" class="actions.EditorReplaceTextAction" text="Replace Selected Text"
+        description="Simply replace selected text w/ something else" icon="/icons/ic_extension.svg">
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
     </action>
   </actions>
 
   <!-- Add action to show caret information in a dialog box -->
   <actions>
-    <action id="MyPlugin.EditorShowCaretInfo"
-        class="actions.EditorShowCaretInfo" text="Show Caret Info"
-        description="Show caret info in a dialog box"
-        icon="/icons/ic_extension.svg">
+    <action id="MyPlugin.EditorShowCaretInfo" class="actions.EditorShowCaretInfo" text="Show Caret Info"
+        description="Show caret info in a dialog box" icon="/icons/ic_extension.svg">
       <keyboard-shortcut first-keystroke="ctrl alt c" keymap="$default" />
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
     </action>
@@ -150,13 +138,33 @@
     "light service" has to be manually registered for now.
   -->
   <extensions defaultExtensionNs="com.intellij">
-    <projectService
-        serviceImplementation="onProjectOpen.FileManagerLightService" />
+    <projectService serviceImplementation="onProjectOpen.FileManagerLightService" />
   </extensions>
 
   <!--  Markdown plugin -->
   <depends>org.intellij.plugins.markdown</depends>
   <!--  Built in modules: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html-->
   <depends>com.intellij.modules.java</depends>
+
+  <!-- Create a group for UI actions -->
+  <actions>
+    <!-- Create a new "UI things" menu. Add it to EditorPopupMenu. Set popup to true to show it in submenu. -->
+    <group id="MyPlugin.UIThingsMenu" text="UI Things" description="Sampler of UI things" popup="true">
+      <add-to-group group-id="EditorPopupMenu" anchor="first" />
+
+      <!-- Add notification action. -->
+      <action id="MyPlugin.actions.ShowNotificationSample" class="ui.ShowNotificationSampleAction"
+          text="Sample Notification" description="Show notification" icon="/icons/ic_extension.svg">
+        <add-to-group group-id="MyPlugin.UIThingsMenu" anchor="first" />
+      </action>
+
+      <!-- Add dialog action. -->
+      <action id="MyPlugin.actions.ShowDialogSample" class="ui.ShowDialogSampleAction" text="Sample Dialog"
+          description="Show dialog" icon="/icons/ic_extension.svg">
+        <add-to-group group-id="MyPlugin.UIThingsMenu" anchor="first" />
+      </action>
+
+    </group>
+  </actions>
 
 </idea-plugin>
