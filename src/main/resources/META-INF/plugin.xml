@@ -148,21 +148,23 @@
 
   <!-- Create a group for UI actions -->
   <actions>
-    <!-- Create a new "UI things" menu. Add it to EditorPopupMenu. Set popup to true to show it in submenu. -->
+    <!--
+      Create a new "UI things" menu. Add it to EditorPopupMenu. Set popup to true to show it in submenu.
+      More info: https://www.jetbrains.org/intellij/sdk/docs/tutorials/action_system/grouping_action.html
+      More info: https://www.jetbrains.org/intellij/sdk/docs/basics/action_system.html#registering-actions-in-pluginxml
+    -->
     <group id="MyPlugin.UIThingsMenu" text="UI Things" description="Sampler of UI things" popup="true">
-      <add-to-group group-id="EditorPopupMenu" anchor="first" />
 
       <!-- Add notification action. -->
       <action id="MyPlugin.actions.ShowNotificationSample" class="ui.ShowNotificationSampleAction"
-          text="Sample Notification" description="Show notification" icon="/icons/ic_extension.svg">
-        <add-to-group group-id="MyPlugin.UIThingsMenu" anchor="first" />
-      </action>
+          text="Sample Notification" description="Show notification" icon="/icons/ic_extension.svg"></action>
 
       <!-- Add dialog action. -->
       <action id="MyPlugin.actions.ShowDialogSample" class="ui.ShowDialogSampleAction" text="Sample Dialog"
-          description="Show dialog" icon="/icons/ic_extension.svg">
-        <add-to-group group-id="MyPlugin.UIThingsMenu" anchor="first" />
-      </action>
+          description="Show dialog" icon="/icons/ic_extension.svg"></action>
+
+      <!-- Add this UIThingsMenu group to the EditorPopupMenu -->
+      <add-to-group group-id="EditorPopupMenu" anchor="first" />
 
     </group>
   </actions>

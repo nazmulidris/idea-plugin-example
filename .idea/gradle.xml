@@ -8,7 +8,7 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
+            <option value="/Volumes/SRC/github/idea-plugin-example" />
           </set>
         </option>
         <option name="useAutoImport" value="true" />
