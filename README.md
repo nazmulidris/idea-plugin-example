@@ -1,3 +1,19 @@
+# TODO 
+
+Create pedagogical samples of creating and using a wide array of UI components
+available in the JB platform.
+
+Samples in the `ui` package: 
+
+- [x] Notification
+- [x] Dialog wrapper
+- [ ] Popup
+- [ ] Kotlin UI DSL
+- [ ] File and class chooser
+- [ ] Editor component
+- [ ] List and tree controls
+- [ ] Tool window
+
 # Running the project
 
 ## LogService and PersistentStateComponent
