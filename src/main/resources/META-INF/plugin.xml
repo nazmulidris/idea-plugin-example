@@ -157,11 +157,11 @@
 
       <!-- Add notification action. -->
       <action id="MyPlugin.actions.ShowNotificationSample" class="ui.ShowNotificationSampleAction"
-          text="Sample Notification" description="Show notification" icon="/icons/ic_extension.svg"></action>
+          text="Sample Notification" description="Show notification" icon="/icons/ic_extension.svg" />
 
       <!-- Add dialog action. -->
       <action id="MyPlugin.actions.ShowDialogSample" class="ui.ShowDialogSampleAction" text="Sample Dialog"
-          description="Show dialog" icon="/icons/ic_extension.svg"></action>
+          description="Show dialog" icon="/icons/ic_extension.svg" />
 
       <!-- Add this UIThingsMenu group to the EditorPopupMenu -->
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
