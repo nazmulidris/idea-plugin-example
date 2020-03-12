@@ -35,17 +35,17 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-  // Unfortunately, this version does not support light services.
-  version = "2019.2.3"
-
-  // Disable this because tests fail w/ the latest snapshot.
-  //version = "LATEST-EAP-SNAPSHOT"
+  // Information on IJ versions https://www.jetbrains.org/intellij/sdk/docs/reference_guide/intellij_artifacts.html
+  // You can use release build numbers or snapshot name for the version.
+  // 1) IJ Release Repository w/ build numbers https://www.jetbrains.com/intellij-repository/releases/
+  // 2) IJ Snapshots Repository w/ snapshot names https://www.jetbrains.com/intellij-repository/snapshots/
+  version = "193.6494.35" // You can also use LATEST-EAP-SNAPSHOT here.
 
   // Declare a dependency on the markdown plugin to be able to access the
   // MarkdownRecursiveElementVisitor.kt file. More info:
   // https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
   // https://plugins.jetbrains.com/plugin/7793-markdown/versions
-  setPlugins("java", "org.intellij.plugins.markdown:192.5728.98")
+  setPlugins("java", "org.intellij.plugins.markdown:193.5233.63")
 }
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
   changeNotes("""

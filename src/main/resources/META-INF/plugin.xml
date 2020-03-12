@@ -132,15 +132,6 @@
     <postStartupActivity implementation="onProjectOpen.PostStartupActivity" />
   </extensions>
 
-  <!--
-    Extension to publish the LogService. This should not be needed with light
-    services, but due to the tests failing on the latest versions of IDEA, the
-    "light service" has to be manually registered for now.
-  -->
-  <extensions defaultExtensionNs="com.intellij">
-    <projectService serviceImplementation="onProjectOpen.FileManagerLightService" />
-  </extensions>
-
   <!--  Markdown plugin -->
   <depends>org.intellij.plugins.markdown</depends>
   <!--  Built in modules: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html-->
