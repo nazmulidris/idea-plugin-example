@@ -19,34 +19,27 @@ import ConsoleColors
 import ConsoleColors.Companion.consoleLog
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
-import java.awt.BorderLayout
-import java.awt.Dimension
+import com.intellij.ui.layout.panel
 import javax.swing.JComponent
-import javax.swing.JLabel
-import javax.swing.JPanel
 
-/**
- * [Docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/dialog_wrapper.html).
- */
-class ShowDialogSampleAction : AnAction() {
+class ShowKotlinUIDSLSampleAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
-    val response = SampleDialogWrapper().showAndGet()
-    consoleLog(ConsoleColors.ANSI_PURPLE, "SampleDialogWrapper", "Response selected:${if (response) "Yes" else "No"}")
+    val response = MyDialogWrapper().showAndGet()
+    consoleLog(ConsoleColors.ANSI_PURPLE, "MyDialogWrapper", "Response selected:${if (response) "Yes" else "No"}")
   }
 }
 
-class SampleDialogWrapper : DialogWrapper(true) {
+private fun createUI(): DialogPanel = panel {
+  noteRow("This is a row with a note")
+}
+
+private class MyDialogWrapper : DialogWrapper(true) {
   init {
     init()
-    title = "Sample Dialog"
+    title = "Sample Dialog with Kotlin UI DSL"
   }
 
-  override fun createCenterPanel(): JComponent {
-    val panel = JPanel(BorderLayout())
-    val label = JLabel("Press OK or Cancel")
-    label.preferredSize = Dimension(100, 100)
-    panel.add(label, BorderLayout.CENTER)
-    return panel
-  }
+  override fun createCenterPanel(): JComponent = createUI()
 }

@@ -148,15 +148,20 @@
 
       <!-- Add notification action. -->
       <action id="MyPlugin.actions.ShowNotificationSample" class="ui.ShowNotificationSampleAction"
-          text="Sample Notification" icon="/icons/ic_extension.svg" />
+          description="Show sample notifications" text="Sample Notification" icon="/icons/ic_extension.svg" />
 
       <!-- Add dialog action. -->
       <action id="MyPlugin.actions.ShowDialogSample" class="ui.ShowDialogSampleAction" text="Sample Dialog"
-          icon="/icons/ic_extension.svg" />
+          description="Show sample dialog" icon="/icons/ic_extension.svg" />
 
       <!-- Add popup action. -->
       <action id="MyPlugin.actions.ShowPopupSample" class="ui.ShowPopupSampleAction" text="Sample Popup"
-          description="Show popup" icon="/icons/ic_extension.svg" />
+          description="Shows sample popups" icon="/icons/ic_extension.svg" />
+
+      <!-- Add Kotlin UI DSL action. -->
+      <action id="MyPlugin.actions.ShowKotlinUIDSLSample" class="ui.ShowKotlinUIDSLSampleAction"
+          text="Sample Kotlin UI DSL" description="Show sample dialog w/ Kotlin UI DSL"
+          icon="/icons/ic_extension.svg" />
 
       <!-- Add this UIThingsMenu group to the EditorPopupMenu -->
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
