@@ -124,3 +124,33 @@ enum class Colors(val ansiCode: String) {
     return StringBuilder("${ansiCode}$content${ANSI_RESET.ansiCode}")
   }
 }
+
+/**
+ * This colorizes console log output. Make sure to install [ANSI Highlighter
+ * Plugin](https://plugins.jetbrains.com/plugin/9707-ansi-highlighter/) in IDEA.
+ */
+enum class ConsoleColors(private val color: String) {
+  ANSI_RESET("\u001B[0m"),
+  ANSI_BLACK("\u001B[30m"),
+  ANSI_RED("\u001B[31m"),
+  ANSI_GREEN("\u001B[32m"),
+  ANSI_YELLOW("\u001B[33m"),
+  ANSI_BLUE("\u001B[34m"),
+  ANSI_PURPLE("\u001B[35m"),
+  ANSI_CYAN("\u001B[36m"),
+  ANSI_WHITE("\u001B[37m");
+
+  override fun toString(): String {
+    return color
+  }
+
+  companion object {
+    @JvmStatic
+    fun consoleLog(color: ConsoleColors, first: String, vararg args: Any): String {
+      val remainder = if (args.isEmpty()) "" else args.joinToString(prefix = ": ", separator = ",")
+      println(color.toString() + first + ConsoleColors.ANSI_RESET + remainder)
+      return StringBuilder().append(first).append(remainder).append("\n").toString()
+    }
+  }
+
+}

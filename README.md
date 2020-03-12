@@ -7,7 +7,7 @@ Samples in the `ui` package:
 
 - [x] Notification
 - [x] Dialog wrapper
-- [ ] Popup
+- [ ] Popup (list)
 - [ ] Kotlin UI DSL
 - [ ] Settings panel (that can save / load state)
 - [ ] File and class chooser
