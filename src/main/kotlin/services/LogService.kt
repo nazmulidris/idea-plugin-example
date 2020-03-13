@@ -49,21 +49,19 @@ object LogService : PersistentStateComponent<LogService.State> {
     }
   }
 
-  // PersistentStateComponent implementation.
-  //
-  // The loadState() method is called by IDEA after the component has been
-  // created (only if there is some non-default state persisted for the
-  // component), and after the XML file with the persisted state is changed
-  // externally (for example, if the project file was updated from the version
-  // control system). In the latter case, the component is responsible for
-  // updating the UI and other related components according to the changed
-  // state.
-  //
-  // The getState() method is called by IDEA every time the settings are saved
-  // (for example, on frame deactivation or when closing the IDE). If the state
-  // returned from getState() is equal to the default state (obtained by
-  // creating the state class with a default constructor), nothing is persisted
-  // in the XML. Otherwise, the returned state is serialized in XML and stored.
+  /*
+   * PersistentStateComponent implementation.
+   *
+   * The loadState() method is called by IDEA after the component has been created (only if there is some non-default
+   * state persisted for the component), and after the XML file with the persisted state is changed externally (for
+   * example, if the project file was updated from the version control system). In the latter case, the component is
+   * responsible for updating the UI and other related components according to the changed state.
+   *
+   * The getState() method is called by IDEA every time the settings are saved (for example, on frame deactivation or
+   * when closing the IDE). If the state returned from getState() is equal to the default state (obtained by creating
+   * the state class with a default constructor), nothing is persisted in the XML. Otherwise, the returned state is
+   * serialized in XML and stored.
+   */
 
   private var state = State()
 
