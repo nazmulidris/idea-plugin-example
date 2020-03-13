@@ -19,6 +19,11 @@ import ConsoleColors
 import ConsoleColors.Companion.consoleLog
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.ServiceManager.getService
+import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.layout.panel
@@ -49,32 +54,7 @@ class ShowKotlinUIDSLSampleAction : AnAction() {
 private fun createDialogPanel(): DialogPanel = panel {
   noteRow("This is a row with a note")
   row {
-    checkBox("Boolean MyState::myFlag", MyState::myFlag)
-  }
-}
-
-//
-// Object that has bound properties that are tied to the UI.
-//
-
-internal object MyState {
-  private var _myFlag: Boolean = false
-  var myFlag: Boolean by object : ReadWriteProperty<MyState, Boolean> {
-    override fun getValue(thisRef: MyState, property: KProperty<*>): Boolean {
-      consoleLog(ConsoleColors.ANSI_BLUE, "MyState::myFlag.getValue()", "$_myFlag")
-      consoleLog(ConsoleColors.ANSI_YELLOW, "MyState.toString()", thisRef.toString())
-      return thisRef._myFlag
-    }
-
-    override fun setValue(thisRef: MyState, property: KProperty<*>, value: Boolean) {
-      consoleLog(ConsoleColors.ANSI_RED, "MyState::myFlag setValue()", "old: ${thisRef._myFlag}", "new: $value")
-      thisRef._myFlag = value
-      consoleLog(ConsoleColors.ANSI_YELLOW, "MyState.toString", thisRef.toString())
-    }
-  }
-
-  override fun toString(): String {
-    return "State{ _myFlag: $_myFlag }"
+    checkBox("Boolean MyState::myFlag", KotlinDSLUISampleService.instance.state::myFlag)
   }
 }
 
@@ -89,4 +69,56 @@ private class MyDialogWrapper : DialogWrapper(true) {
   }
 
   override fun createCenterPanel(): JComponent = createDialogPanel()
+}
+
+//
+// PersistentStateComponent & LightService to persist the state across IDE restarts.
+//
+
+@Service
+@State(name = "KotlinDSLUISampleData", storages = [Storage("kotlinDSLUISampleData.xml")])
+object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleService.State> {
+  val instance: KotlinDSLUISampleService
+    get() = getService(KotlinDSLUISampleService::class.java)
+
+  private var state = State()
+
+  override fun getState(): State {
+    consoleLog(ConsoleColors.ANSI_PURPLE, "KotlinDSLUISampleData.getState", "state: $state")
+    return state
+  }
+
+  override fun loadState(stateLoadedFromPersistence: State) {
+    consoleLog(ConsoleColors.ANSI_PURPLE,
+               "KotlinDSLUISampleData.loadState",
+               "stateLoadedFromPersistence: $stateLoadedFromPersistence")
+    state = stateLoadedFromPersistence
+  }
+
+  //
+  // Properties in this class are bound to the Kotlin DSL UI.
+  //
+
+  class State {
+    /** Backing field for generated property. */
+    private var _myFlag: Boolean = false
+    var myFlag: Boolean by object : ReadWriteProperty<State, Boolean> {
+      override fun getValue(thisRef: State, property: KProperty<*>): Boolean {
+        consoleLog(ConsoleColors.ANSI_BLUE, "MyState::myFlag.getValue()", "$_myFlag")
+        consoleLog(ConsoleColors.ANSI_YELLOW, "MyState.toString()", thisRef.toString())
+        return thisRef._myFlag
+      }
+
+      override fun setValue(thisRef: State, property: KProperty<*>, value: Boolean) {
+        consoleLog(ConsoleColors.ANSI_RED, "MyState::myFlag setValue()", "old: ${thisRef._myFlag}", "new: $value")
+        thisRef._myFlag = value
+        consoleLog(ConsoleColors.ANSI_YELLOW, "MyState.toString", thisRef.toString())
+      }
+    }
+
+    override fun toString(): String {
+      return "State{ _myFlag: $_myFlag }"
+    }
+  }
+
 }
