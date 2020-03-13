@@ -20,6 +20,7 @@ import Colors.*
 import com.intellij.AppTopics
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.components.ServiceManager.getService
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener
@@ -49,10 +50,7 @@ class FileManagerLightService(
      * This is used by IDEA to get a reference to the single instance of this
      * service (used by [ServiceManager]).
      */
-    fun getInstance(project: Project): FileManagerLightService {
-      return ServiceManager
-          .getService(project, FileManagerLightService::class.java)
-    }
+    fun getInstance(project: Project) = getService(project, FileManagerLightService::class.java)
   }
 
   fun init() {
