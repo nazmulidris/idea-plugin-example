@@ -145,10 +145,19 @@ enum class ConsoleColors(private val color: String) {
   }
 
   companion object {
+    /**
+     * Print a colorized string to [System.out]. In pseudocode, it does this:
+     *
+     * `<firstColor>first:</firstColor>: args[0], args[1].., args[n]`.
+     *
+     * @param firstColor This color is only applied to the [first] string.
+     * @param first This is printed first w/ the provided [firstColor] w/ a ":" postfix.
+     * @param args These are printed w/ "space + comma" separation thereafter.
+     */
     @JvmStatic
-    fun consoleLog(color: ConsoleColors, first: String, vararg args: Any): String {
-      val remainder = if (args.isEmpty()) "" else args.joinToString(prefix = ": ", separator = ",")
-      println(color.toString() + first + ConsoleColors.ANSI_RESET + remainder)
+    fun consoleLog(firstColor: ConsoleColors, first: String, vararg args: Any): String {
+      val remainder = if (args.isEmpty()) "" else args.joinToString(prefix = ": ", separator = ", ")
+      println(firstColor.toString() + first + ConsoleColors.ANSI_RESET + remainder)
       return StringBuilder().append(first).append(remainder).append("\n").toString()
     }
   }
