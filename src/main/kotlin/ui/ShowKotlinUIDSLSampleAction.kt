@@ -81,6 +81,9 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   val instance: KotlinDSLUISampleService
     get() = getService(KotlinDSLUISampleService::class.java)
 
+  //
+  // PersistentStateComponent methods.
+  //
   private var state = State()
 
   override fun getState(): State {
@@ -100,7 +103,7 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   //
 
   class State {
-    /** Backing field for generated property. */
+    /** Backing field for generated property [myFlag]. */
     private var _myFlag: Boolean = false
     var myFlag: Boolean by object : ReadWriteProperty<State, Boolean> {
       override fun getValue(thisRef: State, property: KProperty<*>): Boolean {
