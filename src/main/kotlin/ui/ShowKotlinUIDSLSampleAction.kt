@@ -17,6 +17,7 @@ package ui
 
 import ConsoleColors
 import ConsoleColors.Companion.consoleLog
+import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.PersistentStateComponent
@@ -53,12 +54,33 @@ class ShowKotlinUIDSLSampleAction : AnAction() {
  */
 private fun createDialogPanel(): DialogPanel = panel {
   noteRow("This is a row with a note")
-  row {
-    checkBox("Boolean MyState::myFlag", KotlinDSLUISampleService.instance.state::myFlag)
+
+  row("[Boolean]") {
+    row {
+      cell {
+        checkBox("", KotlinDSLUISampleService.instance.state::myFlag)
+        label("Boolean state::myFlag")
+      }
+    }
   }
-  row {
-    label("Label for text field")
-    textField(KotlinDSLUISampleService.instance.state::myString)
+
+  row("[String]") {
+    row {
+      label("String state::myString")
+      textField(KotlinDSLUISampleService.instance.state::myString)
+    }
+  }
+
+  row("[Int]") {
+    row {
+      label("Int state::myInt")
+      spinner(KotlinDSLUISampleService.instance.state::myInt, minValue = 0, maxValue = 50, step = 5)
+    }
+  }
+
+  noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
+    consoleLog(ConsoleColors.ANSI_PURPLE, "link url: '$it' clicked")
+    BrowserUtil.browse(it)
   }
 }
 
@@ -109,6 +131,7 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   class State {
     var myFlag: Boolean by object : LoggingProperty<State, Boolean>(false) {}
     var myString: String by object : LoggingProperty<State, String>("") {}
+    var myInt: Int by object : LoggingProperty<State, Int>(0) {}
 
     override fun toString(): String = "State{ myFlag: '$myFlag', myString: '$myString' }"
 
@@ -128,7 +151,6 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   }
 
 }
-
 
 
 
