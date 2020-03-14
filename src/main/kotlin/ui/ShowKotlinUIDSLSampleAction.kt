@@ -56,6 +56,10 @@ private fun createDialogPanel(): DialogPanel = panel {
   row {
     checkBox("Boolean MyState::myFlag", KotlinDSLUISampleService.instance.state::myFlag)
   }
+  row {
+    label("Label for text field")
+    textField(KotlinDSLUISampleService.instance.state::myString)
+  }
 }
 
 //
@@ -103,25 +107,29 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   //
 
   class State {
-    /** Backing field for generated property [myFlag]. */
-    private var _myFlag: Boolean = false
-    var myFlag: Boolean by object : ReadWriteProperty<State, Boolean> {
-      override fun getValue(thisRef: State, property: KProperty<*>): Boolean {
-        consoleLog(ConsoleColors.ANSI_BLUE, "MyState::myFlag.getValue()", "$_myFlag")
-        consoleLog(ConsoleColors.ANSI_YELLOW, "MyState.toString()", thisRef.toString())
-        return thisRef._myFlag
+    var myFlag: Boolean by object : LoggingProperty<State, Boolean>(false) {}
+    var myString: String by object : LoggingProperty<State, String>("") {}
+
+    override fun toString(): String = "State{ myFlag: '$myFlag', myString: '$myString' }"
+
+    open class LoggingProperty<R, T>(initValue: T) : ReadWriteProperty<R, T> {
+      var backingField: T = initValue
+
+      override fun getValue(thisRef: R, property: KProperty<*>): T {
+        consoleLog(ConsoleColors.ANSI_BLUE, "MyState::${property.name}.getValue()", "value: '$backingField'")
+        return backingField
       }
 
-      override fun setValue(thisRef: State, property: KProperty<*>, value: Boolean) {
-        consoleLog(ConsoleColors.ANSI_RED, "MyState::myFlag setValue()", "old: ${thisRef._myFlag}", "new: $value")
-        thisRef._myFlag = value
-        consoleLog(ConsoleColors.ANSI_YELLOW, "MyState.toString", thisRef.toString())
+      override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
+        backingField = value
+        consoleLog(ConsoleColors.ANSI_BLUE, "MyState::${property.name}.setValue()", "value: '$backingField'")
       }
-    }
-
-    override fun toString(): String {
-      return "State{ _myFlag: $_myFlag }"
     }
   }
 
 }
+
+
+
+
+
