@@ -48,9 +48,13 @@ class ShowKotlinUIDSLSampleAction : AnAction() {
 //
 
 /**
- * Look at
- * [PasswordSafeConfigurable.kt](https://github.com/JetBrains/intellij-community/blob/master/platform/credential-store/src/PasswordSafeConfigurable.kt)
- * for more information on how to use `apply()` and `reset()` in the [DialogPanel]. These relate to "Configurables".
+ * What UI elements are available?
+ * 1. To see what objects can be added to the [LayoutBuilder], check out [RowBuilder].
+ * 2. To see what objects can be added inside each row, check out [CellBuilder].
+ *
+ * Configurables
+ * Look at [PasswordSafeConfigurable.kt](https://tinyurl.com/vqk6o3g) for more information on how to use `apply()`
+ * and `reset()` in the [DialogPanel]. These relate to "Configurables".
  */
 private fun createDialogPanel(): DialogPanel = panel {
   noteRow("This is a row with a note")
