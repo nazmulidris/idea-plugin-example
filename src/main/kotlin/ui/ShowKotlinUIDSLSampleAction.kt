@@ -27,7 +27,9 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.layout.panel
+import ui.KotlinDSLUISampleService.instance
 import javax.swing.JComponent
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -56,35 +58,47 @@ class ShowKotlinUIDSLSampleAction : AnAction() {
  * Look at [PasswordSafeConfigurable.kt](https://tinyurl.com/vqk6o3g) for more information on how to use `apply()`
  * and `reset()` in the [DialogPanel]. These relate to "Configurables".
  */
-private fun createDialogPanel(): DialogPanel = panel {
-  noteRow("This is a row with a note")
+private fun createDialogPanel(): DialogPanel {
+  // Restore the selection state of the combo box.
+  val comboBoxChoices = listOf("choice1", "choice2", "choice3")
+  val comboBoxModel = CollectionComboBoxModel(
+      comboBoxChoices,
+      if (instance.state.myStringChoice == "") null else instance.state.myStringChoice)
 
-  row("[Boolean]") {
-    row {
-      cell {
-        checkBox("", KotlinDSLUISampleService.instance.state::myFlag)
-        label("Boolean state::myFlag")
+  return panel {
+    noteRow("This is a row with a note")
+
+    row("[Boolean]") {
+      row {
+        cell {
+          checkBox("", instance.state::myFlag)
+          label("Boolean state::myFlag")
+        }
       }
     }
-  }
 
-  row("[String]") {
-    row {
-      label("String state::myString")
-      textField(KotlinDSLUISampleService.instance.state::myString)
+    row("[String]") {
+      row {
+        label("String state::myString")
+        textField(instance.state::myString)
+      }
     }
-  }
 
-  row("[Int]") {
-    row {
-      label("Int state::myInt")
-      spinner(KotlinDSLUISampleService.instance.state::myInt, minValue = 0, maxValue = 50, step = 5)
+    row("[Int]") {
+      row {
+        label("Int state::myInt")
+        spinner(instance.state::myInt, minValue = 0, maxValue = 50, step = 5)
+      }
     }
-  }
 
-  noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
-    consoleLog(ConsoleColors.ANSI_PURPLE, "link url: '$it' clicked")
-    BrowserUtil.browse(it)
+    row("ComboBox / Drop down list") {
+      comboBox(comboBoxModel, instance.state::myStringChoice)
+    }
+
+    noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
+      consoleLog(ConsoleColors.ANSI_PURPLE, "link url: '$it' clicked")
+      BrowserUtil.browse(it)
+    }
   }
 }
 
@@ -136,8 +150,10 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
     var myFlag: Boolean by object : LoggingProperty<State, Boolean>(false) {}
     var myString: String by object : LoggingProperty<State, String>("") {}
     var myInt: Int by object : LoggingProperty<State, Int>(0) {}
+    var myStringChoice: String by object : LoggingProperty<State, String>("") {}
 
-    override fun toString(): String = "State{ myFlag: '$myFlag', myString: '$myString' }"
+    override fun toString(): String =
+        "State{ myFlag: '$myFlag', myString: '$myString', myInt: '$myInt', myStringChoice: '$myStringChoice' }"
 
     open class LoggingProperty<R, T>(initValue: T) : ReadWriteProperty<R, T> {
       var backingField: T = initValue
