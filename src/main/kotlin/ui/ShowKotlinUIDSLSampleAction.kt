@@ -155,6 +155,7 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
     override fun toString(): String =
         "State{ myFlag: '$myFlag', myString: '$myString', myInt: '$myInt', myStringChoice: '$myStringChoice' }"
 
+    /** Factory class to generate synthetic properties, that log every access and mutation to each property. */
     open class LoggingProperty<R, T>(initValue: T) : ReadWriteProperty<R, T> {
       var backingField: T = initValue
 
