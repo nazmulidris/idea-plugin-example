@@ -128,18 +128,18 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   //
   // PersistentStateComponent methods.
   //
-  private var state = State()
+  var myState = State()
 
   override fun getState(): State {
-    consoleLog(ConsoleColors.ANSI_PURPLE, "KotlinDSLUISampleData.getState", "state: $state")
-    return state
+    consoleLog(ConsoleColors.ANSI_PURPLE, "KotlinDSLUISampleData.getState", "state: $myState")
+    return myState
   }
 
   override fun loadState(stateLoadedFromPersistence: State) {
     consoleLog(ConsoleColors.ANSI_PURPLE,
                "KotlinDSLUISampleData.loadState",
                "stateLoadedFromPersistence: $stateLoadedFromPersistence")
-    state = stateLoadedFromPersistence
+    myState = stateLoadedFromPersistence
   }
 
   //
