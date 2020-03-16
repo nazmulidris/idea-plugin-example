@@ -44,7 +44,6 @@ Also, to delete this file, if it gets too big:
 find . -name "logServiceData.xml" | xargs rm
 ```
 
-
 # References
 
 Getting started w/ writing your first plugin
