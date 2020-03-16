@@ -3,14 +3,18 @@
 Create pedagogical samples of creating and using a wide array of UI components
 available in the JB platform.
 
-Samples in the `ui` package: 
+Samples in the `ui` package.
 
+Now:
 - [x] Notification
 - [x] Dialog wrapper
 - [x] Popup (list)
 - [x] Kotlin UI DSL
 - [ ] Settings panel (that can save / load state)
 - [ ] Tool window
+- [ ] Gutter decorations
+
+Future:
 - [ ] List and tree controls
 - [ ] File and class chooser
 - [ ] Editor component
