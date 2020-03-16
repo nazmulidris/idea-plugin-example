@@ -1,11 +1,11 @@
-# TODO 
+# TODO
 
-Create pedagogical samples of creating and using a wide array of UI components
-available in the JB platform.
+Create pedagogical samples of creating and using a wide array of UI components available in the JB platform.
 
 Samples in the `ui` package.
 
 Now:
+
 - [x] Notification
 - [x] Dialog wrapper
 - [x] Popup (list)
@@ -15,6 +15,7 @@ Now:
 - [ ] Gutter decorations
 
 Future:
+
 - [ ] List and tree controls
 - [ ] File and class chooser
 - [ ] Editor component
@@ -23,17 +24,17 @@ Future:
 
 ## LogService and PersistentStateComponent
 
-To find the IDEA log look at the `$PROJECT_DIR/build/idea-sandbox/system/log
-/idea.log` file. A simple command to do this (from the project directory) is:
+To find the IDEA log look at the `$PROJECT_DIR/build/idea-sandbox/system/log /idea.log` file. A simple command to do
+this (from the project directory) is:
 
 ```shell script
 find . -name "idea.log" | xargs tail -f | grep MyPlugin
 ```
 
-To find the `"logServiceData.xml"` take a look at the `$PROJECT_DIR/build
-/idea-sandbox/config/options/logServiceData.xml` file. A simple command to do
- this (from the project directory) is:
- 
+To find the `"logServiceData.xml"` take a look at the
+`$PROJECT_DIR/build /idea-sandbox/config/options/logServiceData.xml` file. A simple command to do this (from the project
+directory) is:
+
 ```shell script
 find . -name "logServiceData.xml" | xargs subl -n
 ```
@@ -53,7 +54,7 @@ Getting started w/ writing your first plugin
 - [github issues thread on IDEA icons](https://tinyurl.com/yxe8yhxt)
 - [List of default icons in IDEA, AllIcons.java](https://tinyurl.com/y4nh4nwu)
 - [IDEA plugin services and components](https://tinyurl.com/y4n4l4wd)
-    - [github repo for plugin component & service](https://tinyurl.com/y6o9dlhb)
+  - [github repo for plugin component & service](https://tinyurl.com/y6o9dlhb)
 - [Details about actions](https://tinyurl.com/yxaoflp6)
 - [JetBrains official code samples for plugins](https://tinyurl.com/y69ufr68)
 
@@ -61,7 +62,7 @@ Extension Points and extensions
 
 - [IDEA docs on extensions and extension points](https://tinyurl.com/y6a4xafo)
 
-Services 
+Services
 
 - [IDEA docs on services](https://tinyurl.com/yy9tsyq7)
 
@@ -78,9 +79,9 @@ Logging
 Tutorials on writing plugins
 
 - [Simple custom dictionary loader plugin](https://tinyurl.com/y2n8ymsh)
-    - [github repo for this](https://tinyurl.com/y3c4tmyu)
+  - [github repo for this](https://tinyurl.com/y3c4tmyu)
 - [Simple stackoverflow lookup plugin](https://tinyurl.com/y336wul6)
-    - [github repo for this](https://tinyurl.com/y5xwytfj)
+  - [github repo for this](https://tinyurl.com/y5xwytfj)
 
 Icons
 
