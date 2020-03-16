@@ -10,10 +10,10 @@ Samples in the `ui` package:
 - [x] Popup (list)
 - [x] Kotlin UI DSL
 - [ ] Settings panel (that can save / load state)
+- [ ] Tool window
+- [ ] List and tree controls
 - [ ] File and class chooser
 - [ ] Editor component
-- [ ] List and tree controls
-- [ ] Tool window
 
 # Running the project
 
