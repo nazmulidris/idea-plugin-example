@@ -10,7 +10,7 @@ Now:
 - [x] Dialog wrapper
 - [x] Popup (list)
 - [x] Kotlin UI DSL
-- [ ] Settings panel (that can save / load state)
+- [x] Settings panel (that can save / load state)
 - [ ] Tool window
 - [ ] Gutter decorations
 
