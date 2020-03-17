@@ -38,7 +38,7 @@ import kotlin.reflect.KProperty
 // Implement the action here.
 //
 
-class ShowKotlinUIDSLSampleAction : AnAction() {
+class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
     val response = MyDialogWrapper().showAndGet()
     consoleLog(ConsoleColors.ANSI_PURPLE, "MyDialogWrapper", "Response selected:${if (response) "Yes" else "No"}")

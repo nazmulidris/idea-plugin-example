@@ -156,8 +156,8 @@
           description="Shows sample popups" icon="/icons/ic_extension.svg" />
 
       <!-- Add Kotlin UI DSL action. -->
-      <action id="MyPlugin.actions.ShowKotlinUIDSLSample" class="ui.ShowKotlinUIDSLSampleAction"
-          text="Sample Kotlin UI DSL" description="Show sample dialog w/ Kotlin UI DSL"
+      <action id="MyPlugin.actions.ShowKotlinUIDSLSampleInDialog" class="ui.ShowKotlinUIDSLSampleInDialogAction"
+          text="Sample Kotlin UI DSL" description="Show sample dialog w/ a form make using Kotlin UI DSL"
           icon="/icons/ic_extension.svg" />
 
       <!-- Add this UIThingsMenu group to the EditorPopupMenu. -->
