@@ -21,7 +21,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 
 /**
- * [Docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/notifications.html).
+   * [Docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/notifications.html).
  */
 class ShowNotificationSampleAction : AnAction() {
   private val GROUP_DISPAY_ID = "UI Samples"
@@ -34,8 +34,9 @@ class ShowNotificationSampleAction : AnAction() {
   }
 
   /**
-   * One way to show notifications. This notification won't be logged to "Event Log" tool window. And it is project
-   * specific.
+   * One way to show notifications.
+   * 1) This notification won't be logged to "Event Log" tool window.
+   * 2) And it is project specific.
    */
   private fun anotherNotification(e: AnActionEvent) {
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
@@ -48,7 +49,10 @@ class ShowNotificationSampleAction : AnAction() {
     notification.notify(project)
   }
 
-  /** Another way to show notifications. This will be logged to "Event Log" and is not tied to a specific project. */
+  /**
+   * Another way to show notifications.
+   * 1) This will be logged to "Event Log" and is not tied to a specific project.
+   */
   private fun aNotification() {
     val notification = Notification(GROUP_DISPAY_ID,
                                     "1 .$messageTitle",
