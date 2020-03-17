@@ -59,11 +59,12 @@ class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
  * and `reset()` in the [DialogPanel]. These relate to "Configurables".
  */
 fun createDialogPanel(): DialogPanel {
-  // Restore the selection state of the combo box.
   val comboBoxChoices = listOf("choice1", "choice2", "choice3")
-  val comboBoxModel = CollectionComboBoxModel(
-      comboBoxChoices,
-      if (instance.state.myStringChoice == "") null else instance.state.myStringChoice)
+
+  // Restore the selection state of the combo box.
+  val preexistingSelection = instance.myState.myStringChoice
+  val selection = if (preexistingSelection.isEmpty()) comboBoxChoices.first() else preexistingSelection
+  val comboBoxModel = CollectionComboBoxModel(comboBoxChoices, selection)
 
   return panel {
     noteRow("This is a row with a note")
@@ -71,7 +72,7 @@ fun createDialogPanel(): DialogPanel {
     row("[Boolean]") {
       row {
         cell {
-          checkBox("", instance.state::myFlag)
+          checkBox("", instance.myState::myFlag)
           label("Boolean state::myFlag")
         }
       }
@@ -80,19 +81,19 @@ fun createDialogPanel(): DialogPanel {
     row("[String]") {
       row {
         label("String state::myString")
-        textField(instance.state::myString)
+        textField(instance.myState::myString)
       }
     }
 
     row("[Int]") {
       row {
         label("Int state::myInt")
-        spinner(instance.state::myInt, minValue = 0, maxValue = 50, step = 5)
+        spinner(instance.myState::myInt, minValue = 0, maxValue = 50, step = 5)
       }
     }
 
     row("ComboBox / Drop down list") {
-      comboBox(comboBoxModel, instance.state::myStringChoice)
+      comboBox(comboBoxModel, instance.myState::myStringChoice)
     }
 
     noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
@@ -125,18 +126,19 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   val instance: KotlinDSLUISampleService
     get() = getService(KotlinDSLUISampleService::class.java)
 
+  var myState = State()
+
   //
   // PersistentStateComponent methods.
   //
-  private var myState = State()
 
   override fun getState(): State {
-    consoleLog(ConsoleColors.ANSI_PURPLE, "KotlinDSLUISampleData.getState", "state: $myState")
+    consoleLog(ConsoleColors.ANSI_RED, "KotlinDSLUISampleData.getState", "state: $myState")
     return myState
   }
 
   override fun loadState(stateLoadedFromPersistence: State) {
-    consoleLog(ConsoleColors.ANSI_PURPLE,
+    consoleLog(ConsoleColors.ANSI_RED,
                "KotlinDSLUISampleData.loadState",
                "stateLoadedFromPersistence: $stateLoadedFromPersistence")
     myState = stateLoadedFromPersistence
@@ -172,7 +174,3 @@ object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServ
   }
 
 }
-
-
-
-

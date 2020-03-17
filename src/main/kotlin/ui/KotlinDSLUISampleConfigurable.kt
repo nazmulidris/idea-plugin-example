@@ -16,7 +16,6 @@
 package ui
 
 import ConsoleColors.ANSI_GREEN
-import ConsoleColors.ANSI_PURPLE
 import ConsoleColors.Companion.consoleLog
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
@@ -24,13 +23,15 @@ import com.intellij.openapi.ui.DialogPanel
 /**
  * This application level configurable shows up the in IDE Settings UI.
  */
-class KotlinDSLUISampleConfigurable() : BoundConfigurable("Kotlin UI DSL") {
+class KotlinDSLUISampleConfigurable : BoundConfigurable("Kotlin UI DSL") {
   override fun apply() {
     consoleLog(ANSI_GREEN, "KotlinDSLUISampleConfigurable apply() called")
+    super.apply()
   }
 
   override fun cancel() {
     consoleLog(ANSI_GREEN, "KotlinDSLUISampleConfigurable cancel() called")
+    super.cancel()
   }
 
   /** When the form is changed by the user, this returns `true` and enables the "Apply" button. */
@@ -41,6 +42,7 @@ class KotlinDSLUISampleConfigurable() : BoundConfigurable("Kotlin UI DSL") {
 
   override fun reset() {
     consoleLog(ANSI_GREEN, "KotlinDSLUISampleConfigurable reset() called")
+    super.reset()
   }
 
   override fun createPanel(): DialogPanel = createDialogPanel()
