@@ -58,7 +58,7 @@ class ShowKotlinUIDSLSampleAction : AnAction() {
  * Look at [PasswordSafeConfigurable.kt](https://tinyurl.com/vqk6o3g) for more information on how to use `apply()`
  * and `reset()` in the [DialogPanel]. These relate to "Configurables".
  */
-private fun createDialogPanel(): DialogPanel {
+fun createDialogPanel(): DialogPanel {
   // Restore the selection state of the combo box.
   val comboBoxChoices = listOf("choice1", "choice2", "choice3")
   val comboBoxModel = CollectionComboBoxModel(

@@ -48,8 +48,7 @@
     <extensionPoint name="configuratorRunnable" interface="java.lang.Runnable" />
   </extensionPoints>
 
-  <!-- Extensions that run when the application component above is
-  initialized. -->
+  <!-- Extensions that run when the application component above is initialized. -->
   <extensions defaultExtensionNs="com.developerlife.example.idea-plugin-example">
     <configuratorRunnable order="first" implementation="extensions.AnInitializer"
         id="MyPlugin.extensions.AnInitializer" />
@@ -62,8 +61,7 @@
     <applicationService serviceImplementation="services.LogService" />
   </extensions>
 
-  <!-- Add SearchOnStackOverflowAction to both the EditorPopupMenu and
-  ConsoleEditorPopupMenu -->
+  <!-- Add SearchOnStackOverflowAction to both the EditorPopupMenu and ConsoleEditorPopupMenu. -->
   <actions>
     <action id="MyPlugin.Editor.actions.SearchOnStackOverflowAction" class="actions.SearchOnStackOverflowAction"
         text="Search on Stack Overflow" description="Search selected text on Stack Overflow"
@@ -73,20 +71,19 @@
     </action>
   </actions>
 
-  <!-- Create a new Greeting menu and add the following to it: HelloAction and
-  AskQuestionOnStackOverflowAction. -->
+  <!-- Create a new Greeting menu and add the following to it: HelloAction and AskQuestionOnStackOverflowAction. -->
   <actions>
-    <!-- Create a new Greeting menu -->
+    <!-- Create a new Greeting menu. -->
     <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
       <add-to-group group-id="MainMenu" anchor="last" />
 
-      <!-- Add HelloAction to the Greeting menu -->
+      <!-- Add HelloAction to the Greeting menu. -->
       <action id="MyPlugin.actions.HelloAction" class="actions.HelloAction" text="Hello" description="Says hello"
           icon="/icons/ic_check_circle.svg">
         <add-to-group group-id="MainMenu" anchor="first" />
       </action>
 
-      <!-- Add AskQuestionOnStackOverflowAction to the Greeting menu -->
+      <!-- Add AskQuestionOnStackOverflowAction to the Greeting menu. -->
       <action id="MyPlugin.actions.AskQuestionOnStackOverflowAction" class="actions.AskQuestionOnStackOverflowAction"
           text="Ask Question" description="Opens a browser" icon="/icons/ic_stackoverflow.svg">
         <add-to-group group-id="MainMenu" anchor="last" />
@@ -94,7 +91,7 @@
     </group>
   </actions>
 
-  <!-- Add action to replace the selected text w/ something else -->
+  <!-- Add action to replace the selected text w/ something else. -->
   <actions>
     <action id="MyPlugin.EditorReplaceText" class="actions.EditorReplaceTextAction" text="Replace Selected Text"
         description="Simply replace selected text w/ something else" icon="/icons/ic_extension.svg">
@@ -102,7 +99,7 @@
     </action>
   </actions>
 
-  <!-- Add action to show caret information in a dialog box -->
+  <!-- Add action to show caret information in a dialog box. -->
   <actions>
     <action id="MyPlugin.EditorShowCaretInfo" class="actions.EditorShowCaretInfo" text="Show Caret Info"
         description="Show caret info in a dialog box" icon="/icons/ic_extension.svg">
@@ -111,7 +108,7 @@
     </action>
   </actions>
 
-  <!-- Add action to show PSI information in a dialog box  -->
+  <!-- Add action to show PSI information in a dialog box. -->
   <actions>
     <action id="MyPlugin.EditorShowPSIInfo" class="actions.EditorShowPSIInfo" text="Show PSI Info"
         description="Show PSI info in a dialog box" icon="/icons/ic_extension.svg">
@@ -119,7 +116,7 @@
     </action>
   </actions>
 
-  <!--  Add action to replace Markdown inline link w/ something else -->
+  <!--  Add action to replace Markdown inline link w/ something else. -->
   <actions>
     <action id="MyPlugin.EditorReplaceLink" class="actions.EditorReplaceLink" text="Replace Inline Link"
         description="Replace inline link w/ something else" icon="/icons/ic_extension.svg">
@@ -127,17 +124,17 @@
     </action>
   </actions>
 
-  <!--  Extension to run some code post startup https://tinyurl.com/ufd64mk -->
+  <!--  Extension to run some code post startup https://tinyurl.com/ufd64mk. -->
   <extensions defaultExtensionNs="com.intellij">
     <postStartupActivity implementation="onProjectOpen.PostStartupActivity" />
   </extensions>
 
-  <!--  Markdown plugin -->
+  <!--  Markdown plugin. -->
   <depends>org.intellij.plugins.markdown</depends>
   <!--  Built in modules: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html-->
   <depends>com.intellij.modules.java</depends>
 
-  <!-- Create a group for UI actions -->
+  <!-- Create a group for UI actions. -->
   <actions>
     <!--
       Create a new "UI things" menu. Add it to EditorPopupMenu. Set popup to true to show it in submenu.
@@ -163,10 +160,15 @@
           text="Sample Kotlin UI DSL" description="Show sample dialog w/ Kotlin UI DSL"
           icon="/icons/ic_extension.svg" />
 
-      <!-- Add this UIThingsMenu group to the EditorPopupMenu -->
+      <!-- Add this UIThingsMenu group to the EditorPopupMenu. -->
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
 
     </group>
   </actions>
+
+  <!-- Add Settings Dialog that is similar to what ShowKotlinUIDSLSampleAction does. -->
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable instance="ui.KotlinDSLUISampleConfigurable" />
+  </extensions>
 
 </idea-plugin>
