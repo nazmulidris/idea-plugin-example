@@ -62,8 +62,8 @@ fun createDialogPanel(): DialogPanel {
   val comboBoxChoices = listOf("choice1", "choice2", "choice3")
 
   // Restore the selection state of the combo box.
-  val preexistingSelection = instance.myState.myStringChoice
-  val selection = if (preexistingSelection.isEmpty()) comboBoxChoices.first() else preexistingSelection
+  val savedSelection = instance.myState.myStringChoice // This is an empty string by default.
+  val selection = if (savedSelection.isEmpty()) comboBoxChoices.first() else savedSelection
   val comboBoxModel = CollectionComboBoxModel(comboBoxChoices, selection)
 
   return panel {
