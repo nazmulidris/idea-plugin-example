@@ -17,7 +17,6 @@ package actions
 
 import Colors.ANSI_RED
 import Colors.ANSI_YELLOW
-import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -30,6 +29,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
+import langSetContains
 import longSleep
 import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
@@ -88,9 +88,18 @@ internal class EditorShowPSIInfo : AnAction() {
     val message = buildString {
       append(langs.joinToString(prefix = "\n[", postfix = "]\n"))
       when {
-        langs.contains("Markdown") -> runReadAction { append(navigateMarkdownTree(psiFile, indicator, project)) }
-        langs.contains("Java")     -> runReadAction { append(navigateJavaTree(psiFile, indicator, project, editor)) }
-        else                       -> append(ANSI_RED("No supported languages found"))
+        langSetContains(langs, "Markdown") -> runReadAction {
+          append(navigateMarkdownTree(psiFile,
+                                      indicator,
+                                      project))
+        }
+        langSetContains(langs, "Java")     -> runReadAction {
+          append(navigateJavaTree(psiFile,
+                                  indicator,
+                                  project,
+                                  editor))
+        }
+        else                               -> append(ANSI_RED("No supported languages found"))
       }
       checkCancelled(indicator, project)
     }
@@ -201,9 +210,6 @@ internal class EditorShowPSIInfo : AnAction() {
     return count.toString()
 
   }
-
-  private fun Set<Language>.contains(language: String): Boolean =
-      this.any { language.equals(it.id, ignoreCase = true) }
 
   private fun checkCancelled(indicator: ProgressIndicator,
                              project: Project

@@ -17,13 +17,18 @@
 package onProjectOpen
 
 import Colors.*
+import ConsoleColors
+import ConsoleColors.Companion.consoleLog
 import com.intellij.AppTopics
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.ServiceManager.getService
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
@@ -33,10 +38,17 @@ import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import langSetContains
+import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
 import printDebugHeader
 import printlnAndLog
+import psi.CheckCancelled
+import psi.findLink
 import whichThread
 
 @Service
@@ -82,6 +94,43 @@ class FileManagerLightService(
               append("\tvFile: $vFile\n")
               append("\tdocument: $document\n")
             }).printlnAndLog()
+
+            consoleLog(ConsoleColors.ANSI_RED, whichThread())
+            consoleLog(ConsoleColors.ANSI_RED, "project: $project")
+
+            object : Task.Backgroundable(project, "Run on save task") {
+              override fun run(indicator: ProgressIndicator) {
+                doWorkInBackground(document, indicator, project)
+              }
+            }.queue()
+
+          }
+
+          private fun doWorkInBackground(document: Document, indicator: ProgressIndicator, project: Project) {
+            val checkCancelled = CheckCancelled(indicator, project)
+            val psiFile = runReadAction { isMarkdownFile(document) }
+            psiFile?.apply { runReadAction { processMarkdownFile(psiFile, checkCancelled) } }
+          }
+
+          private fun isMarkdownFile(document: Document): PsiFile? {
+            consoleLog(ConsoleColors.ANSI_RED, whichThread())
+            val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
+            psiFile?.apply {
+              val viewProvider = psiFile.viewProvider
+              val langs = viewProvider.languages
+              if (langSetContains(langs, "Markdown")) return psiFile
+            }
+            return null
+          }
+
+          private fun processMarkdownFile(psiFile: PsiFile, checkCancelled: CheckCancelled) {
+            consoleLog(ConsoleColors.ANSI_RED, "🔥 Process Markdown file 🔥")
+            val collectedLinks = PsiTreeUtil.collectElementsOfType(psiFile, MarkdownLinkDestinationImpl::class.java)
+            consoleLog(ConsoleColors.ANSI_PURPLE, "size of collected links: ", collectedLinks.size)
+            collectedLinks.forEach {
+              val linkInfo = findLink(it, psiFile, checkCancelled)
+              consoleLog(ConsoleColors.ANSI_PURPLE, "linkInfo", linkInfo ?: "null")
+            }
           }
         })
   }

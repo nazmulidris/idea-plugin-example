@@ -16,11 +16,15 @@
 
 import Colors.*
 import com.intellij.ide.plugins.PluginManager
+import com.intellij.lang.Language
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationListener.UrlOpeningListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager.getApplication
 import services.LogService
+
+fun langSetContains(set: Set<Language>, language: String): Boolean =
+    set.any { language.equals(it.id, ignoreCase = true) }
 
 fun sleep(durationMs: Long = 100) {
   val formattedDuration = "%.3f sec".format(durationMs / 1000f)
