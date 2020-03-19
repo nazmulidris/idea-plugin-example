@@ -182,7 +182,6 @@ class FileManagerLightService(
     })
   }
 
-
   /**
    * VFS listeners are application level and will receive events for changes
    * happening in all the projects opened by the user. You may need to filter
