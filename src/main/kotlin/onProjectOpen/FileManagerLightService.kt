@@ -21,6 +21,7 @@ import ConsoleColors
 import ConsoleColors.Companion.consoleLog
 import com.intellij.AppTopics
 import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.ServiceManager.getService
@@ -42,14 +43,12 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiTreeUtil
-import langSetContains
-import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
+import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
 import printDebugHeader
 import printlnAndLog
-import psi.CheckCancelled
-import psi.LinkInfo
-import psi.findLink
+import psi.*
+import urlshortenservice.ShortenUrlService
+import urlshortenservice.TinyUrl
 import whichThread
 
 @Service
@@ -66,13 +65,13 @@ class FileManagerLightService(
     fun getInstance(project: Project) = getService(project, FileManagerLightService::class.java)
   }
 
-  fun init() {
+  fun init(shortenUrlService: ShortenUrlService = TinyUrl()) {
     "LightService.init() run w/ project: $project".printlnAndLog()
     logListOfProjectVFilesByExt()
     logListOfProjectVFilesByName()
     logListOfAllProjectVFiles()
     attachListenerForProjectVFileChanges()
-    attachFileSaveListener()
+    attachFileSaveListener(shortenUrlService)
   }
 
   /**
@@ -81,79 +80,103 @@ class FileManagerLightService(
    * - [AppTopics]
    * - [`Document docs`](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/documents.html#how-do-i-get-notified-when-documents-change)
    */
-  private fun attachFileSaveListener() {
+  private fun attachFileSaveListener(shortenUrlService: ShortenUrlService) {
     printDebugHeader()
 
+    class ReplaceLongLinksInMarkdownFileOnSave(val shortenUrlService: ShortenUrlService) {
+      fun execute(document: Document) {
+        val vFile = FileDocumentManager.getInstance().getFile(document)
+
+        printDebugHeader()
+        consoleLog(ConsoleColors.ANSI_RED, whichThread())
+        consoleLog(ConsoleColors.ANSI_RED, "project: $project")
+        ANSI_BLUE(buildString {
+          append("A VirtualFile is about to be saved\n")
+          append("\tvFile: $vFile\n")
+          append("\tdocument: $document\n")
+        }).printlnAndLog()
+
+        object : Task.Backgroundable(project, "Run on save task") {
+          override fun run(indicator: ProgressIndicator) = doWorkInBackground(document, indicator, project)
+        }.queue()
+
+      }
+
+      private fun doWorkInBackground(document: Document, indicator: ProgressIndicator, project: Project) {
+        printDebugHeader()
+        consoleLog(ConsoleColors.ANSI_RED, whichThread())
+
+        val checkCancelled = CheckCancelled(indicator, project)
+        val markdownPsiFile = runReadAction { getMarkdownPsiFile(document) }
+
+        markdownPsiFile?.apply {
+          val linkNodes = runReadAction { getAllLongLinks(markdownPsiFile, checkCancelled) }
+
+          // Do this in background thread: make blocking calls that perform network IO.
+          run {
+            consoleLog(ConsoleColors.ANSI_RED, "️⚠️ Shorten links ⚠️", "size: ${linkNodes.size}", linkNodes)
+            linkNodes.forEach { linkNode: LinkNode ->
+              linkNode.linkDestination = shortenUrlService.shorten(linkNode.linkDestination)
+              callCheckCancelled(checkCancelled)
+            }
+          }
+
+          // Mutate the PSI in this write command action.
+          // - The write command action enables undo.
+          // - The lambda inside of this call runs in the EDT.
+          WriteCommandAction.runWriteCommandAction(project) {
+            if (!markdownPsiFile.isValid) return@runWriteCommandAction
+            consoleLog(ConsoleColors.ANSI_RED, whichThread(), "🔥 Running write action to replace links 🔥")
+            linkNodes.forEach { replaceExistingLinkWith(project, it, checkCancelled) }
+          }
+        }
+      }
+
+      private fun getMarkdownPsiFile(document: Document): PsiFile? {
+        consoleLog(ConsoleColors.ANSI_RED, whichThread())
+        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
+        psiFile?.apply {
+          val viewProvider = psiFile.viewProvider
+          val langs = viewProvider.languages
+          if (langSetContains(langs, "Markdown")) return psiFile
+        }
+        return null
+      }
+
+      private fun getAllLongLinks(psiFile: PsiFile, checkCancelled: CheckCancelled): List<LinkNode> {
+        val links = mutableListOf<LinkNode>()
+
+        consoleLog(ConsoleColors.ANSI_RED, "🔥 Process Markdown file 🔥")
+
+        val linkElements = findAllChildElements(psiFile, MarkdownTokenTypeSets.LINKS, checkCancelled)
+        // The following line does the same thing as above:
+        // val collectedLinks = PsiTreeUtil.collectElementsOfType(psiFile, MarkdownLinkDestinationImpl::class.java)
+
+        consoleLog(ConsoleColors.ANSI_PURPLE, "size of collected link elements: ", linkElements.size)
+        linkElements.forEach { element ->
+          val linkNode = findLink(element, psiFile, checkCancelled)
+          consoleLog(ConsoleColors.ANSI_PURPLE, "linkNode", linkNode ?: "null")
+          if (shouldAccept(linkNode)) links.add(linkNode!!)
+        }
+
+        return links
+      }
+
+      private fun shouldAccept(linkNode: LinkNode?): Boolean = when {
+        linkNode == null                                           -> false
+        linkNode.linkDestination.startsWith("https://tinyurl.com") -> false
+        linkNode.linkDestination.startsWith("http")                -> true
+        else                                                       -> false
+      }
+    }
+
+    val replaceLongLinksInMarkdownFileOnSave = ReplaceLongLinksInMarkdownFileOnSave(shortenUrlService)
     val connection = project.messageBus.connect(/*parentDisposable=*/ project)
-    connection.subscribe(
-        AppTopics.FILE_DOCUMENT_SYNC,
-        object : FileDocumentManagerListener {
-          override fun beforeDocumentSaving(document: Document) {
-            val vFile = FileDocumentManager.getInstance().getFile(document)
-            ANSI_BLUE(buildString {
-              append("A VirtualFile is about to be saved\n")
-              append("\tvFile: $vFile\n")
-              append("\tdocument: $document\n")
-            }).printlnAndLog()
-
-            consoleLog(ConsoleColors.ANSI_RED, whichThread())
-            consoleLog(ConsoleColors.ANSI_RED, "project: $project")
-
-            object : Task.Backgroundable(project, "Run on save task") {
-              override fun run(indicator: ProgressIndicator) {
-                doWorkInBackground(document, indicator, project)
-              }
-            }.queue()
-
-          }
-
-          private fun doWorkInBackground(document: Document, indicator: ProgressIndicator, project: Project) {
-            val checkCancelled = CheckCancelled(indicator, project)
-            val psiFile = runReadAction { isMarkdownFile(document) }
-            psiFile?.apply {
-              val longLinkInfos = runReadAction { getAllLongLinks(psiFile, checkCancelled) }
-              consoleLog(ConsoleColors.ANSI_RED,
-                         "🔥 pending process this list 🔥",
-                         "links: ${longLinkInfos.size}",
-                         longLinkInfos.toString())
-            }
-          }
-
-          private fun isMarkdownFile(document: Document): PsiFile? {
-            consoleLog(ConsoleColors.ANSI_RED, whichThread())
-            val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
-            psiFile?.apply {
-              val viewProvider = psiFile.viewProvider
-              val langs = viewProvider.languages
-              if (langSetContains(langs, "Markdown")) return psiFile
-            }
-            return null
-          }
-
-          // TODO: this is returning duped results ... something is wrong w/ the PsiTreeUtil call... replace w/ my own
-          private fun getAllLongLinks(psiFile: PsiFile, checkCancelled: CheckCancelled): List<LinkInfo> {
-            val links = mutableListOf<LinkInfo>()
-            consoleLog(ConsoleColors.ANSI_RED, "🔥 Process Markdown file 🔥")
-            val collectedLinks = PsiTreeUtil.collectElementsOfType(psiFile, MarkdownLinkDestinationImpl::class.java)
-            consoleLog(ConsoleColors.ANSI_PURPLE, "size of collected links: ", collectedLinks.size)
-            collectedLinks.forEach {
-              val linkInfo = findLink(it, psiFile, checkCancelled)
-              consoleLog(ConsoleColors.ANSI_PURPLE, "linkInfo", linkInfo ?: "null")
-              if (shouldAccept(linkInfo)) links.add(linkInfo!!)
-            }
-            return links
-          }
-
-          private fun shouldAccept(linkInfo: LinkInfo?): Boolean {
-            when {
-              linkInfo == null                                           -> return false
-              linkInfo.linkDestination.startsWith("https://tinyurl.com") -> return false
-              linkInfo.linkDestination.startsWith("http")                -> return true
-              else                                                       -> return false
-            }
-          }
-        })
+    connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerListener {
+      override fun beforeDocumentSaving(document: Document) = replaceLongLinksInMarkdownFileOnSave.execute(document)
+    })
   }
+
 
   /**
    * VFS listeners are application level and will receive events for changes

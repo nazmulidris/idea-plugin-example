@@ -17,6 +17,7 @@
 package psi
 
 import Colors
+import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
@@ -66,9 +67,9 @@ fun callCheckCancelled(checkCancelled: CheckCancelled?) {
   checkCancelled?.invoke()
 }
 
-data class LinkInfo(var parentLinkElement: PsiElement, var linkText: String, var linkDestination: String) {
+data class LinkNode(var parentLinkElement: PsiElement, var linkText: String, var linkDestination: String) {
   override fun toString(): String {
-    return "\nLinkInfo{ $linkText,  $linkDestination }"
+    return "\nLinkNode{ $linkText,  $linkDestination }"
   }
 }
 
@@ -79,6 +80,14 @@ fun findParentElement(element: PsiElement?, tokenSet: TokenSet, checkCancelled: 
     val node = it.node
     node != null && tokenSet.contains(node.elementType)
   }
+}
+
+fun findAllChildElements(root: PsiElement?, tokenSet: TokenSet, checkCancelled: CheckCancelled?): List<PsiElement> {
+  val collectedItems = mutableListOf<PsiElement>()
+  root?.apply {
+    collectedItems.addAll(PsiTreeUtil.collectElements(root) { element -> tokenSet.contains(element.node.elementType) })
+  }
+  return collectedItems
 }
 
 fun findChildElement(element: PsiElement?, tokenSet: TokenSet, checkCancelled: CheckCancelled?): PsiElement? {
@@ -151,7 +160,7 @@ fun findChildElement(element: PsiElement?, token: IElementType?, checkCancelled:
  * PsiElement(Markdown:Markdown:EOL)('\n')(1498,1499)
  * ```
  */
-fun findLink(element: PsiElement?, psiFile: PsiFile, checkCancelled: CheckCancelled?): LinkInfo? {
+fun findLink(element: PsiElement?, psiFile: PsiFile, checkCancelled: CheckCancelled?): LinkNode? {
   printDebugHeader()
 
   // Find the first parent of the element at the caret, which is a link.
@@ -171,16 +180,16 @@ fun findLink(element: PsiElement?, psiFile: PsiFile, checkCancelled: CheckCancel
 
   Colors.ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
   Colors.ANSI_GREEN("linkText: $linkText, linkDest: $linkDestination").printlnAndLog()
-  return LinkInfo(parentLinkElement, linkText, linkDestination)
+  return LinkNode(parentLinkElement, linkText, linkDestination)
 }
 
-fun replaceExistingLinkWith(project: Project, newLinkInfo: LinkInfo, checkCancelled: CheckCancelled?) {
+fun replaceExistingLinkWith(project: Project, newLinkNode: LinkNode, checkCancelled: CheckCancelled?) {
   // Create a replacement link destination.
   val replacementLinkElement =
-      createNewLinkElement(project, newLinkInfo.linkText, newLinkInfo.linkDestination, checkCancelled)
+      createNewLinkElement(project, newLinkNode.linkText, newLinkNode.linkDestination, checkCancelled)
 
   // Replace the original link destination in the [parentLinkElement] w/ the new one.
-  if (replacementLinkElement != null) newLinkInfo.parentLinkElement.replace(replacementLinkElement)
+  if (replacementLinkElement != null) newLinkNode.parentLinkElement.replace(replacementLinkElement)
 }
 
 fun createNewLinkElement(project: Project,
@@ -193,3 +202,6 @@ fun createNewLinkElement(project: Project,
   val newParentLinkElement = findChildElement(newFile, MarkdownTokenTypeSets.LINKS, checkCancelled)
   return newParentLinkElement
 }
+
+fun langSetContains(set: Set<Language>, language: String): Boolean =
+    set.any { language.equals(it.id, ignoreCase = true) }

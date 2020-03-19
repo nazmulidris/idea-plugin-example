@@ -117,7 +117,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     ANSI_RED(whichThread()).printlnAndLog()
 
     // Acquire a read lock in order to find the link information.
-    val linkInfo = runReadAction {
+    val linkNode = runReadAction {
       val offset = editor.caretModel.offset
       val elementAtCaret: PsiElement? = psiFile.findElementAt(offset)
       return@runReadAction findLink(elementAtCaret, psiFile, checkCancelled)
@@ -126,10 +126,10 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     callCheckCancelled(checkCancelled)
 
     // Actually shorten the link in this background thread (ok to block here).
-    if (linkInfo == null) return false
-    linkInfo.linkDestination = shortenUrlService.shorten(linkInfo.linkDestination) // Blocking call, does network IO.
+    if (linkNode == null) return false
+    linkNode.linkDestination = shortenUrlService.shorten(linkNode.linkDestination) // Blocking call, does network IO.
 
-    CopyPasteManager.getInstance().setContents(StringSelection(linkInfo.linkDestination))
+    CopyPasteManager.getInstance().setContents(StringSelection(linkNode.linkDestination))
 
     callCheckCancelled(checkCancelled)
 
@@ -139,7 +139,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     WriteCommandAction.runWriteCommandAction(project) {
       if (!psiFile.isValid) return@runWriteCommandAction
       ANSI_RED(whichThread()).printlnAndLog()
-      replaceExistingLinkWith(project, linkInfo, checkCancelled)
+      replaceExistingLinkWith(project, linkNode, checkCancelled)
     }
 
     callCheckCancelled(checkCancelled)

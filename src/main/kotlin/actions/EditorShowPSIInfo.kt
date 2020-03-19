@@ -29,7 +29,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
-import langSetContains
 import longSleep
 import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
@@ -37,6 +36,7 @@ import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownParagraphImpl
 import printDebugHeader
 import printlnAndLog
+import psi.langSetContains
 import sleep
 import whichThread
 
