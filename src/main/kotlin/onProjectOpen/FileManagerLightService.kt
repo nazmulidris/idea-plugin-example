@@ -130,6 +130,7 @@ class FileManagerLightService(
             return null
           }
 
+          // TODO: this is returning duped results ... something is wrong w/ the PsiTreeUtil call... replace w/ my own
           private fun getAllLongLinks(psiFile: PsiFile, checkCancelled: CheckCancelled): List<LinkInfo> {
             val links = mutableListOf<LinkInfo>()
             consoleLog(ConsoleColors.ANSI_RED, "🔥 Process Markdown file 🔥")
