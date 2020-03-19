@@ -48,6 +48,7 @@ import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
 import printDebugHeader
 import printlnAndLog
 import psi.CheckCancelled
+import psi.LinkInfo
 import psi.findLink
 import whichThread
 
@@ -109,7 +110,13 @@ class FileManagerLightService(
           private fun doWorkInBackground(document: Document, indicator: ProgressIndicator, project: Project) {
             val checkCancelled = CheckCancelled(indicator, project)
             val psiFile = runReadAction { isMarkdownFile(document) }
-            psiFile?.apply { runReadAction { processMarkdownFile(psiFile, checkCancelled) } }
+            psiFile?.apply {
+              val longLinkInfos = runReadAction { getAllLongLinks(psiFile, checkCancelled) }
+              consoleLog(ConsoleColors.ANSI_RED,
+                         "🔥 pending process this list 🔥",
+                         "links: ${longLinkInfos.size}",
+                         longLinkInfos.toString())
+            }
           }
 
           private fun isMarkdownFile(document: Document): PsiFile? {
@@ -123,13 +130,25 @@ class FileManagerLightService(
             return null
           }
 
-          private fun processMarkdownFile(psiFile: PsiFile, checkCancelled: CheckCancelled) {
+          private fun getAllLongLinks(psiFile: PsiFile, checkCancelled: CheckCancelled): List<LinkInfo> {
+            val links = mutableListOf<LinkInfo>()
             consoleLog(ConsoleColors.ANSI_RED, "🔥 Process Markdown file 🔥")
             val collectedLinks = PsiTreeUtil.collectElementsOfType(psiFile, MarkdownLinkDestinationImpl::class.java)
             consoleLog(ConsoleColors.ANSI_PURPLE, "size of collected links: ", collectedLinks.size)
             collectedLinks.forEach {
               val linkInfo = findLink(it, psiFile, checkCancelled)
               consoleLog(ConsoleColors.ANSI_PURPLE, "linkInfo", linkInfo ?: "null")
+              if (shouldAccept(linkInfo)) links.add(linkInfo!!)
+            }
+            return links
+          }
+
+          private fun shouldAccept(linkInfo: LinkInfo?): Boolean {
+            when {
+              linkInfo == null                                           -> return false
+              linkInfo.linkDestination.startsWith("https://tinyurl.com") -> return false
+              linkInfo.linkDestination.startsWith("http")                -> return true
+              else                                                       -> return false
             }
           }
         })
