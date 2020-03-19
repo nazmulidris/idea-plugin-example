@@ -47,6 +47,7 @@ import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
 import printDebugHeader
 import printlnAndLog
 import psi.*
+import ui.KotlinDSLUISampleService
 import urlshortenservice.ShortenUrlService
 import urlshortenservice.TinyUrl
 import whichThread
@@ -96,10 +97,14 @@ class FileManagerLightService(
           append("\tdocument: $document\n")
         }).printlnAndLog()
 
-        object : Task.Backgroundable(project, "Run on save task") {
-          override fun run(indicator: ProgressIndicator) = doWorkInBackground(document, indicator, project)
-        }.queue()
-
+        if (KotlinDSLUISampleService.instance.myState.myFlag) {
+          object : Task.Backgroundable(project, "🔥 Run background task on save Markdown file 🔥") {
+            override fun run(indicator: ProgressIndicator) = doWorkInBackground(document, indicator, project)
+          }.queue()
+        }
+        else {
+          consoleLog(ConsoleColors.ANSI_RED, "⚠️ myFlag is false -> do nothing ⚠️")
+        }
       }
 
       private fun doWorkInBackground(document: Document, indicator: ProgressIndicator, project: Project) {
