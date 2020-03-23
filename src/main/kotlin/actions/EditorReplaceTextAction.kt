@@ -59,7 +59,5 @@ class EditorReplaceTextAction : AnAction() {
     primaryCaret.removeSelection()
   }
 
-  override fun update(e: AnActionEvent) {
-    EditorBaseAction.mustHaveProjectAndEditorAndTextSelection(e)
-  }
+  override fun update(e: AnActionEvent) = mustHaveProjectAndEditorAndTextSelection(e)
 }

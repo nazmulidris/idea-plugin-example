@@ -16,7 +16,6 @@
 package actions
 
 import Colors.ANSI_RED
-import actions.EditorBaseAction.mustHaveProjectAndEditor
 import actions.EditorReplaceLink.RunningState.*
 import com.google.common.annotations.VisibleForTesting
 import com.intellij.ide.plugins.PluginManagerCore

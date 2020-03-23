@@ -228,6 +228,5 @@ internal class EditorShowPSIInfo : AnAction() {
     }
   }
 
-  override fun update(e: AnActionEvent) =
-      EditorBaseAction.mustHaveProjectAndEditor(e)
+  override fun update(e: AnActionEvent) = mustHaveProjectAndEditor(e)
 }
