@@ -21,19 +21,17 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import java.io.File
 
 /**
- * Files needed to be loaded from the plugin project's `testdata` directory.
+ * Files needed to be loaded from the plugin project's `testdata` directory for the IDE test fixtures. This class
+ * provides a way to access the files in this directory.
  *
- * By default, IntelliJ Platform [BasePlatformTestCase] provides a location that
- * is invalid for use by 3rd party plugins (provided by
- * [BasePlatformTestCase.myFixture#basePath]). This assumes that the files
- * are in the classpath of the IntelliJ IDEA codebase itself.
+ * By default, IntelliJ Platform [BasePlatformTestCase] provides a location that is invalid for use by 3rd party plugins
+ * (provided by [BasePlatformTestCase.getTestDataPath]). This assumes that the files are in the classpath of the
+ * IntelliJ IDEA codebase itself.
  *
- * The [computeBasePath] function uses the classpath of this class in order
- * to locate where on disk, this class is loaded from. And then walks up the
- * path to locate the `testdata` folder. Also, note that this class uses an
- * annotation (`@file:JvmName()`) in order to explicitly set its own classname
- * and not use the computed `TestUtilsKt.class` (which would be the default
- * w/out using this annotation).
+ * The [computeBasePath] function uses the classpath of this class in order to locate where on disk, this class is
+ * loaded from. And then walks up the path to locate the `testdata` folder. Also, note that this class uses an
+ * annotation (`@file:JvmName()`) in order to explicitly set its own classname and not use the computed
+ * `TestUtilsKt.class` (which would be the default w/out using this annotation).
  */
 class TestUtils {
 
