@@ -40,7 +40,7 @@ class EditorReplaceTextActionTest : LightPlatformCodeInsightTestCase() {
   }
 
   override fun getTestDataPath(): String {
-    return computeBasePath() + File.separator
+    return computeBasePath + File.separator
   }
 
   @Test

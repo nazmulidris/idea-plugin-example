@@ -45,9 +45,7 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     assertThat(testDataPath).isNotNull()
   }
 
-  override fun getTestDataPath(): String {
-    return computeBasePath()
-  }
+  override fun getTestDataPath(): String = computeBasePath
 
   @Test
   fun testUnderlyingFunctionUsedByTestEditorReplaceLinkAction() {
