@@ -47,6 +47,11 @@ intellij {
   // https://plugins.jetbrains.com/plugin/7793-markdown/versions
   setPlugins("java", "org.intellij.plugins.markdown:193.5233.63")
 }
+
+tasks.withType<KotlinCompile> {
+  kotlinOptions.jvmTarget = "1.8"
+}
+
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
   changeNotes("""
     Changelog:
@@ -54,9 +59,6 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
       <li>1.0 - Empty plugin</li>
       <li>2.0 - Added features</li>
     </ol>""")
-}
-tasks.withType<KotlinCompile> {
-  kotlinOptions.jvmTarget = "1.8"
 }
 
 // Testing.
