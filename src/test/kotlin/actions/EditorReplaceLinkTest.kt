@@ -42,7 +42,7 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
   @Before
   public override fun setUp() {
     super.setUp()
-    assertThat(testDataPath).isNotNull
+    assertThat(testDataPath).isNotNull()
   }
 
   override fun getTestDataPath(): String {
@@ -59,10 +59,10 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
     val action = EditorReplaceLink(mockShortenUrlService)
     val result = action.doWorkInBackground(editor, psiFile, project)
-    assertThat(result).isTrue
+    assertThat(result).isTrue()
 
     val presentation = myFixture.testAction(action)
-    assertThat(presentation.isEnabledAndVisible).isTrue
+    assertThat(presentation.isEnabledAndVisible).isTrue()
 
     myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
   }
@@ -95,7 +95,7 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     }
 
     val presentation = myFixture.testAction(action)
-    assertThat(presentation.isEnabledAndVisible).isTrue
+    assertThat(presentation.isEnabledAndVisible).isTrue()
 
     val textInClipboard = CopyPasteManager.getInstance().getContents<String>(DataFlavor.stringFlavor)
     assertThat(textInClipboard).isEqualTo("https://tinyurl.com/mbq3m")
@@ -117,7 +117,7 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     val action = EditorReplaceLink(mockShortenUrlService)
 
     val presentation = myFixture.testAction(action)
-    assertThat(presentation.isEnabledAndVisible).isTrue
+    assertThat(presentation.isEnabledAndVisible).isTrue()
 
     val textInClipboard = CopyPasteManager.getInstance().getContents<String>(DataFlavor.stringFlavor)
     assertThat(textInClipboard).isSameAs(mockShortenUrlService.shorten())
