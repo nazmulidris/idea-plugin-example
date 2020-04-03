@@ -35,7 +35,10 @@ import notify
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import printDebugHeader
 import printlnAndLog
-import psi.*
+import psi.CheckCancelled
+import psi.findLink
+import psi.findParentElement
+import psi.replaceExistingLinkWith
 import urlshortenservice.ShortenUrlService
 import urlshortenservice.TinyUrl
 import whichThread
@@ -49,8 +52,8 @@ import java.awt.datatransfer.StringSelection
  */
 class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : AnAction() {
   /**
-   * For some tests this is not initialized, but accessed when running [doWorkInBackground]. Use [callCheckCancelled]
-   * instead of a direct call to `CheckCancelled.invoke()`.
+   * For some tests this is not initialized, but accessed when running [doWorkInBackground]. Make sure to call
+   * `checkCancelled?.invoke()`.
    */
   private var checkCancelled: CheckCancelled? = null
 
@@ -108,7 +111,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
   /**
    * This function returns true when it executes successfully. If there is no work for this function to do then it
    * returns false. However, if the task is cancelled (when wrapped w/ a [Task.Backgroundable], then it will throw
-   * an exception (and aborts) when [callCheckCancelled] is called.
+   * an exception (and aborts) when `checkCancelled.invoke()` is called.
    */
   @VisibleForTesting
   fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {
@@ -122,7 +125,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
       return@runReadAction findLink(elementAtCaret, psiFile, checkCancelled)
     }
 
-    callCheckCancelled(checkCancelled)
+    checkCancelled?.invoke()
 
     // Actually shorten the link in this background thread (ok to block here).
     if (linkNode == null) return false
@@ -130,7 +133,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
 
     CopyPasteManager.getInstance().setContents(StringSelection(linkNode.linkDestination))
 
-    callCheckCancelled(checkCancelled)
+    checkCancelled?.invoke()
 
     // Mutate the PSI in this write command action.
     // - The write command action enables undo.
@@ -141,7 +144,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
       replaceExistingLinkWith(project, linkNode, checkCancelled)
     }
 
-    callCheckCancelled(checkCancelled)
+    checkCancelled?.invoke()
 
     return true
   }

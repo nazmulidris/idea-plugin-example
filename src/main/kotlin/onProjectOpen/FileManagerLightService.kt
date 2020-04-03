@@ -122,7 +122,7 @@ class FileManagerLightService(
             consoleLog(ConsoleColors.ANSI_RED, "️⚠️ Shorten links ⚠️", "size: ${linkNodes.size}", linkNodes)
             linkNodes.forEach { linkNode: LinkNode ->
               linkNode.linkDestination = shortenUrlService.shorten(linkNode.linkDestination)
-              callCheckCancelled(checkCancelled)
+              checkCancelled.invoke()
             }
           }
 

@@ -63,10 +63,6 @@ class CheckCancelled(private val indicator: ProgressIndicator?, private val proj
   }
 }
 
-fun callCheckCancelled(checkCancelled: CheckCancelled?) {
-  checkCancelled?.invoke()
-}
-
 data class LinkNode(var parentLinkElement: PsiElement, var linkText: String, var linkDestination: String) {
   override fun toString(): String {
     return "\nLinkNode{ $linkText,  $linkDestination }"
@@ -76,7 +72,7 @@ data class LinkNode(var parentLinkElement: PsiElement, var linkText: String, var
 fun findParentElement(element: PsiElement?, tokenSet: TokenSet, checkCancelled: CheckCancelled?): PsiElement? {
   if (element == null) return null
   return PsiTreeUtil.findFirstParent(element, false) {
-    callCheckCancelled(checkCancelled)
+    checkCancelled?.invoke()
     val node = it.node
     node != null && tokenSet.contains(node.elementType)
   }
@@ -97,7 +93,7 @@ fun findChildElement(element: PsiElement?, tokenSet: TokenSet, checkCancelled: C
       object : PsiElementProcessor.FindElement<PsiElement>() {
         // If found, returns false. Otherwise returns true.
         override fun execute(each: PsiElement): Boolean {
-          callCheckCancelled(checkCancelled)
+          checkCancelled?.invoke()
           if (tokenSet.contains(each.node.elementType)) return setFound(each)
           else return true
         }
@@ -105,7 +101,7 @@ fun findChildElement(element: PsiElement?, tokenSet: TokenSet, checkCancelled: C
 
   element.accept(object : PsiRecursiveElementWalkingVisitor() {
     override fun visitElement(element: PsiElement) {
-      callCheckCancelled(checkCancelled)
+      checkCancelled?.invoke()
       val isFound = !processor.execute(element)
       if (isFound) stopWalking()
       else super.visitElement(element)
