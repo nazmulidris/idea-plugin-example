@@ -29,7 +29,7 @@ import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.layout.panel
-import ui.KotlinDSLUISampleService.instance
+import ui.KotlinDSLUISampleService.Companion.instance
 import javax.swing.JComponent
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -122,9 +122,11 @@ private class MyDialogWrapper : DialogWrapper(true) {
 
 @Service
 @State(name = "KotlinDSLUISampleData", storages = [Storage("kotlinDSLUISampleData.xml")])
-object KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleService.State> {
-  val instance: KotlinDSLUISampleService
-    get() = getService(KotlinDSLUISampleService::class.java)
+class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleService.State> {
+  companion object {
+    val instance: KotlinDSLUISampleService
+      get() = getService(KotlinDSLUISampleService::class.java)
+  }
 
   var myState = State()
 
