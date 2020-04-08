@@ -21,7 +21,7 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 
 /**
- * This application level configurable shows up the in IDE Settings UI.
+ * This application level configurable shows up the in IDE Preferences UI.
  */
 class KotlinDSLUISampleConfigurable : BoundConfigurable("Kotlin UI DSL") {
   override fun apply() {
