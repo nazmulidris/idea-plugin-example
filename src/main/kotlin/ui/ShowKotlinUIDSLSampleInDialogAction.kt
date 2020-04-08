@@ -164,13 +164,13 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
       var backingField: T = initValue
 
       override fun getValue(thisRef: R, property: KProperty<*>): T {
-        consoleLog(ConsoleColors.ANSI_BLUE, "MyState::${property.name}.getValue()", "value: '$backingField'")
+        consoleLog(ConsoleColors.ANSI_BLUE, "State::${property.name}.getValue()", "value: '$backingField'")
         return backingField
       }
 
       override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
         backingField = value
-        consoleLog(ConsoleColors.ANSI_BLUE, "MyState::${property.name}.setValue()", "value: '$backingField'")
+        consoleLog(ConsoleColors.ANSI_BLUE, "State::${property.name}.setValue()", "value: '$backingField'")
       }
     }
   }
