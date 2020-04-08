@@ -15,18 +15,22 @@
  */
 package actions
 
+import ColorConsoleContext.Companion.colorConsole
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.editor.*
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.ui.Messages
-import printDebugHeader
 import java.awt.datatransfer.StringSelection
 
 class EditorShowCaretInfo : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+    }
+
     val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
     val caretModel: CaretModel = editor.caretModel
     val primaryCaret: Caret = caretModel.primaryCaret

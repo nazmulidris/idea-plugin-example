@@ -16,6 +16,7 @@
 
 package psi
 
+import ColorConsoleContext.Companion.colorConsole
 import Colors
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
@@ -32,29 +33,35 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypes
 import org.intellij.plugins.markdown.lang.psi.MarkdownPsiElementFactory
-import printDebugHeader
-import printlnAndLog
-import whichThread
 
 /**
  * Both parameters are marked Nullable for testing. In unit tests, a class of this object is not created.
  */
 class CheckCancelled(private val indicator: ProgressIndicator?, private val project: Project?) {
   operator fun invoke() {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+    }
 
     if (indicator == null || project == null) return
 
-    Colors.ANSI_RED(whichThread()).printlnAndLog()
-    Colors.ANSI_YELLOW("Checking for cancellation").printlnAndLog()
+    colorConsole {
+      printWhichThread()
+      printLine {
+        span(Colors.Yellow, "Checking for cancellation")
+      }
+    }
 
     if (indicator.isCanceled) {
-      Colors.ANSI_RED("Task was cancelled").printlnAndLog()
+      colorConsole {
+        printLine {
+          span(Colors.Red, "Task was cancelled")
+        }
+      }
       ApplicationManager
           .getApplication()
           .invokeLater {
-            Messages.showWarningDialog(
-                project, "Task was cancelled", "Cancelled")
+            Messages.showWarningDialog(project, "Task was cancelled", "Cancelled")
           }
     }
 
@@ -157,7 +164,9 @@ fun findChildElement(element: PsiElement?, token: IElementType?, checkCancelled:
  * ```
  */
 fun findLink(element: PsiElement?, psiFile: PsiFile, checkCancelled: CheckCancelled?): LinkNode? {
-  printDebugHeader()
+  colorConsole {
+    printDebugHeader()
+  }
 
   // Find the first parent of the element at the caret, which is a link.
   val parentLinkElement = findParentElement(element, MarkdownTokenTypeSets.LINKS, checkCancelled)
@@ -174,8 +183,12 @@ fun findLink(element: PsiElement?, psiFile: PsiFile, checkCancelled: CheckCancel
 
   if (linkText == null || linkDestination == null || parentLinkElement == null) return null
 
-  Colors.ANSI_GREEN("Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉").printlnAndLog()
-  Colors.ANSI_GREEN("linkText: $linkText, linkDest: $linkDestination").printlnAndLog()
+  colorConsole {
+    printLine {
+      span(Colors.Green, "Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉")
+      span(Colors.Green, "linkText: $linkText, linkDest: $linkDestination")
+    }
+  }
   return LinkNode(parentLinkElement, linkText, linkDestination)
 }
 

@@ -15,8 +15,8 @@
  */
 package ui
 
-import ConsoleColors
-import ConsoleColors.Companion.consoleLog
+import ColorConsoleContext.Companion.colorConsole
+import Colors
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -41,7 +41,12 @@ import kotlin.reflect.KProperty
 class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
     val response = MyDialogWrapper().showAndGet()
-    consoleLog(ConsoleColors.ANSI_PURPLE, "MyDialogWrapper", "Response selected:${if (response) "Yes" else "No"}")
+    colorConsole {
+      printLine {
+        span(Colors.Purple, "MyDialogWrapper")
+        span(Colors.Green, "Response selected:${if (response) "Yes" else "No"}")
+      }
+    }
   }
 }
 
@@ -97,7 +102,11 @@ fun createDialogPanel(): DialogPanel {
     }
 
     noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
-      consoleLog(ConsoleColors.ANSI_PURPLE, "link url: '$it' clicked")
+      colorConsole {
+        printLine {
+          span(Colors.Purple, "link url: '$it' clicked")
+        }
+      }
       BrowserUtil.browse(it)
     }
   }
@@ -135,14 +144,22 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
   //
 
   override fun getState(): State {
-    consoleLog(ConsoleColors.ANSI_RED, "KotlinDSLUISampleData.getState", "state: $myState")
+    colorConsole {
+      printLine {
+        span(Colors.Purple, "KotlinDSLUISampleData.getState")
+        span(Colors.Green, "state: $myState")
+      }
+    }
     return myState
   }
 
   override fun loadState(stateLoadedFromPersistence: State) {
-    consoleLog(ConsoleColors.ANSI_RED,
-               "KotlinDSLUISampleData.loadState",
-               "stateLoadedFromPersistence: $stateLoadedFromPersistence")
+    colorConsole {
+      printLine {
+        span(Colors.Purple, "KotlinDSLUISampleData.loadState")
+        span(Colors.Green, "stateLoadedFromPersistence: $stateLoadedFromPersistence")
+      }
+    }
     myState = stateLoadedFromPersistence
   }
 
@@ -164,13 +181,23 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
       var backingField: T = initValue
 
       override fun getValue(thisRef: R, property: KProperty<*>): T {
-        consoleLog(ConsoleColors.ANSI_BLUE, "State::${property.name}.getValue()", "value: '$backingField'")
+        colorConsole {
+          printLine {
+            span(Colors.Purple, "State::${property.name}.getValue()")
+            span(Colors.Green, "value: '$backingField'")
+          }
+        }
         return backingField
       }
 
       override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
         backingField = value
-        consoleLog(ConsoleColors.ANSI_BLUE, "State::${property.name}.setValue()", "value: '$backingField'")
+        colorConsole {
+          printLine {
+            span(Colors.Purple, "State::${property.name}.setValue()")
+            span(Colors.Green, "value: '$backingField'")
+          }
+        }
       }
     }
   }

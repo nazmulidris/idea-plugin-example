@@ -16,6 +16,7 @@
 
 package actions
 
+import ColorConsoleContext.Companion.colorConsole
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -24,14 +25,16 @@ import com.intellij.openapi.editor.CaretModel
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import printDebugHeader
 
 class EditorReplaceTextAction : AnAction() {
   /**
    * [Tutorial](https://www.jetbrains.org/intellij/sdk/docs/tutorials/editor_basics/working_with_text.html)
    */
   override fun actionPerformed(e: AnActionEvent) {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+    }
 
     // We are using `getRequiredData()` here because of the checks in the
     // update() method below. This action wouldn't be active if we didn't

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Nazmul Idris. All rights reserved.
+ * Copyright 2020 Nazmul Idris. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package extensionPoints
 
+import ColorConsoleContext.Companion.whichThread
 import com.intellij.openapi.application.Application
 import com.intellij.openapi.extensions.ExtensionPointName
 import logWithHistory
 import notify
-import whichThread
 
 /**
  * Create an ExtensionPointName given the namespace of the plugin and the

@@ -16,9 +16,8 @@
 
 package onProjectOpen
 
+import ColorConsoleContext.Companion.colorConsole
 import Colors.*
-import ConsoleColors
-import ConsoleColors.Companion.consoleLog
 import com.intellij.AppTopics
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.WriteCommandAction
@@ -44,13 +43,10 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
-import printDebugHeader
-import printlnAndLog
 import psi.*
 import ui.KotlinDSLUISampleService
 import urlshortenservice.ShortenUrlService
 import urlshortenservice.TinyUrl
-import whichThread
 
 @Service
 class FileManagerLightService(
@@ -67,7 +63,12 @@ class FileManagerLightService(
   }
 
   fun init(shortenUrlService: ShortenUrlService = TinyUrl()) {
-    "LightService.init() run w/ project: $project".printlnAndLog()
+    colorConsole {
+      printLine {
+        span(Cyan, "LightService.init()")
+        span(Green, "run w/ project: $project")
+      }
+    }
     logListOfProjectVFilesByExt()
     logListOfProjectVFilesByName()
     logListOfAllProjectVFiles()
@@ -82,20 +83,28 @@ class FileManagerLightService(
    * - [`Document docs`](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/documents.html#how-do-i-get-notified-when-documents-change)
    */
   private fun attachFileSaveListener(shortenUrlService: ShortenUrlService) {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+    }
 
     class ReplaceLongLinksInMarkdownFileOnSave(val shortenUrlService: ShortenUrlService) {
       fun execute(document: Document) {
         val vFile = FileDocumentManager.getInstance().getFile(document)
 
-        printDebugHeader()
-        consoleLog(ConsoleColors.ANSI_RED, whichThread())
-        consoleLog(ConsoleColors.ANSI_RED, "project: $project")
-        ANSI_BLUE(buildString {
-          append("A VirtualFile is about to be saved\n")
-          append("\tvFile: $vFile\n")
-          append("\tdocument: $document\n")
-        }).printlnAndLog()
+        colorConsole {
+          printDebugHeader()
+          printWhichThread()
+          printLine {
+            span(Red, "project: $project")
+          }
+          printLine {
+            span(Blue, buildString {
+              append("A VirtualFile is about to be saved\n")
+              append("\tvFile: $vFile\n")
+              append("\tdocument: $document\n")
+            })
+          }
+        }
 
         if (KotlinDSLUISampleService.instance.myState.myFlag) {
           object : Task.Backgroundable(project, "🔥 Run background task on save Markdown file 🔥") {
@@ -103,13 +112,19 @@ class FileManagerLightService(
           }.queue()
         }
         else {
-          consoleLog(ConsoleColors.ANSI_RED, "⚠️ myFlag is false -> do nothing ⚠️")
+          colorConsole {
+            printLine {
+              span(Red, "⚠️ myFlag is false -> do nothing ⚠️")
+            }
+          }
         }
       }
 
       private fun doWorkInBackground(document: Document, indicator: ProgressIndicator, project: Project) {
-        printDebugHeader()
-        consoleLog(ConsoleColors.ANSI_RED, whichThread())
+        colorConsole {
+          printDebugHeader()
+          printWhichThread()
+        }
 
         val checkCancelled = CheckCancelled(indicator, project)
         val markdownPsiFile = runReadAction { getMarkdownPsiFile(document) }
@@ -119,7 +134,13 @@ class FileManagerLightService(
 
           // Do this in background thread: make blocking calls that perform network IO.
           run {
-            consoleLog(ConsoleColors.ANSI_RED, "️⚠️ Shorten links ⚠️", "size: ${linkNodes.size}", linkNodes)
+            colorConsole {
+              printLine {
+                span(Red, "️⚠️ Shorten links ⚠️")
+                span(Green, "size: ${linkNodes.size}")
+                span(Blue, linkNodes.toString())
+              }
+            }
             linkNodes.forEach { linkNode: LinkNode ->
               linkNode.linkDestination = shortenUrlService.shorten(linkNode.linkDestination)
               checkCancelled.invoke()
@@ -131,14 +152,21 @@ class FileManagerLightService(
           // - The lambda inside of this call runs in the EDT.
           WriteCommandAction.runWriteCommandAction(project) {
             if (!markdownPsiFile.isValid) return@runWriteCommandAction
-            consoleLog(ConsoleColors.ANSI_RED, whichThread(), "🔥 Running write action to replace links 🔥")
+            colorConsole {
+              printWhichThread()
+              printLine {
+                span(Green, "🔥 Running write action to replace links 🔥")
+              }
+            }
             linkNodes.forEach { replaceExistingLinkWith(project, it, checkCancelled) }
           }
         }
       }
 
       private fun getMarkdownPsiFile(document: Document): PsiFile? {
-        consoleLog(ConsoleColors.ANSI_RED, whichThread())
+        colorConsole {
+          printWhichThread()
+        }
         val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
         psiFile?.apply {
           val viewProvider = psiFile.viewProvider
@@ -151,16 +179,31 @@ class FileManagerLightService(
       private fun getAllLongLinks(psiFile: PsiFile, checkCancelled: CheckCancelled): List<LinkNode> {
         val links = mutableListOf<LinkNode>()
 
-        consoleLog(ConsoleColors.ANSI_RED, "🔥 Process Markdown file 🔥")
+        colorConsole {
+          printLine {
+            span(Red, "🔥 Process Markdown file 🔥")
+          }
+        }
 
         val linkElements = findAllChildElements(psiFile, MarkdownTokenTypeSets.LINKS, checkCancelled)
         // The following line does the same thing as above:
         // val collectedLinks = PsiTreeUtil.collectElementsOfType(psiFile, MarkdownLinkDestinationImpl::class.java)
 
-        consoleLog(ConsoleColors.ANSI_PURPLE, "size of collected link elements: ", linkElements.size)
+        colorConsole {
+          printLine {
+            span(Purple, "size of collected link elements: ")
+            span(Blue, linkElements.size.toString())
+          }
+        }
+
         linkElements.forEach { element ->
           val linkNode = findLink(element, psiFile, checkCancelled)
-          consoleLog(ConsoleColors.ANSI_PURPLE, "linkNode", linkNode ?: "null")
+          colorConsole {
+            printLine {
+              span(Purple, "linkNode")
+              span(Blue, "${linkNode ?: "null"}")
+            }
+          }
           if (shouldAccept(linkNode)) links.add(linkNode!!)
         }
 
@@ -199,24 +242,42 @@ class FileManagerLightService(
    * ```
    */
   private fun attachListenerForProjectVFileChanges(): Unit {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+    }
 
     fun handleEvent(event: VFileEvent) {
       when (event) {
         is VFilePropertyChangeEvent -> {
-          ANSI_GREEN("VFile property change event: $event").printlnAndLog()
+          colorConsole {
+            printLine {
+              span(Green, "VFile property change event: $event")
+            }
+          }
         }
         is VFileContentChangeEvent  -> {
-          ANSI_GREEN("VFile content change event: $event").printlnAndLog()
+          colorConsole {
+            printLine {
+              span(Blue, "VFile content change event: $event")
+            }
+          }
         }
       }
     }
 
     fun doAfter(events: List<VFileEvent>) {
-      ANSI_BLUE("VFS_CHANGES: #events: ${events.size}").printlnAndLog()
+      colorConsole {
+        printLine {
+          span(Blue, "VFS_CHANGES: #events: ${events.size}")
+        }
+      }
       val projectFileIndex = ProjectRootManager.getInstance(project).fileIndex
       events.withIndex().forEach { (index, event) ->
-        ANSI_GREEN("$index. VFile event: $event").printlnAndLog()
+        colorConsole {
+          printLine {
+            span(Green, "$index. VFile event: $event")
+          }
+        }
         // Filter out file events that are not in the project's content.
         events
             .filter { it.file != null && projectFileIndex.isInContent(it.file!!) }
@@ -233,50 +294,62 @@ class FileManagerLightService(
   }
 
   private fun logListOfAllProjectVFiles() {
-    printDebugHeader()
-
-    ANSI_RED(whichThread()).printlnAndLog()
-    buildString {
-      getListOfAllProjectVFiles(project)
-          .withIndex()
-          .forEach { (index: Int, virtualFile: VirtualFile) ->
-            append(convertVFileToString(index, virtualFile))
-          }
-    }.printlnAndLog()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+      printLine {
+        span(Yellow, "logListOfAllProjectVFiles: ")
+        span(Blue, buildString {
+          getListOfAllProjectVFiles(project)
+              .withIndex()
+              .forEach { (index: Int, virtualFile: VirtualFile) ->
+                append(convertVFileToString(index, virtualFile))
+              }
+        })
+      }
+    }
   }
 
   private fun logListOfProjectVFilesByName() {
-    printDebugHeader()
-
-    ANSI_RED(whichThread()).printlnAndLog()
-    buildString {
-      getListOfProjectVFilesByName(project, fileName = "Lambdas.kt")
-          .withIndex()
-          .forEach { (index: Int, virtualFile: VirtualFile) ->
-            append(convertVFileToString(index, virtualFile))
-          }
-    }.printlnAndLog()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+      printLine {
+        span(Yellow, "logListOfProjectVFilesByName: ")
+        span(Blue, buildString {
+          getListOfProjectVFilesByName(project, fileName = "Lambdas.kt")
+              .withIndex()
+              .forEach { (index: Int, virtualFile: VirtualFile) ->
+                append(convertVFileToString(index, virtualFile))
+              }
+        })
+      }
+    }
   }
 
   private fun logListOfProjectVFilesByExt() {
-    printDebugHeader()
-
-    ANSI_RED(whichThread()).printlnAndLog()
-    buildString {
-      getListOfProjectVFilesByExt(project).withIndex()
-          .forEach { (index: Int, virtualFile: VirtualFile) ->
-            append(convertVFileToString(index, virtualFile))
-          }
-    }.printlnAndLog()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+      printLine {
+        span(Yellow, "logListOfProjectVFilesByExt: ")
+        span(Blue, buildString {
+          getListOfProjectVFilesByExt(project).withIndex()
+              .forEach { (index: Int, virtualFile: VirtualFile) ->
+                append(convertVFileToString(index, virtualFile))
+              }
+        })
+      }
+    }
   }
 
   private fun convertVFileToString(index: Int,
                                    virtualFile: VirtualFile
   ): String {
     return "VirtualFile[$index]: " +
-           ANSI_BLUE("\n name: '${virtualFile.name}'") +
-           ANSI_GREEN("\n path: '${virtualFile.path}'") +
-           ANSI_YELLOW("\n parent.path: '${virtualFile.parent.path}'") +
+           Blue("\n name: '${virtualFile.name}'") +
+           Green("\n path: '${virtualFile.path}'") +
+           Yellow("\n parent.path: '${virtualFile.parent.path}'") +
            "\n"
   }
 

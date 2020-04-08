@@ -16,7 +16,8 @@
 
 package actions
 
-import Colors.ANSI_BLUE
+import ColorConsoleContext.Companion.colorConsole
+import Colors
 import TestFile
 import TestUtils.Companion.computeBasePath
 import actions.EditorReplaceLink.RunningState.*
@@ -25,8 +26,6 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
-import printDebugHeader
-import printlnAndLog
 import shortSleep
 import urlshortenservice.ShortenUrlService
 import java.awt.datatransfer.DataFlavor
@@ -49,7 +48,9 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
   @Test
   fun testUnderlyingFunctionUsedByTestEditorReplaceLinkAction() {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+    }
 
     val psiFile = myFixture.configureByFile(TestFile.Input(getTestName(false)))
     val project = myFixture.project
@@ -70,7 +71,9 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
    */
   @Test
   fun testTheActionByConnectingWithTinyUrlServiceLive() {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+    }
 
     myFixture.configureByFile(TestFile.Input(getTestName(false)))
 
@@ -79,7 +82,11 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
     val executor = Executors.newSingleThreadExecutor()
     val future = executor.submit {
       while (true) {
-        ANSI_BLUE("executor: isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}").printlnAndLog()
+        colorConsole {
+          printLine {
+            span(Colors.Blue, "executor: isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}")
+          }
+        }
         if (action.isRunning() == NOT_STARTED) {
           shortSleep()
           continue
@@ -100,15 +107,26 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
     myFixture.checkResultByFile(TestFile.Output(getTestName(false)))
 
-    ANSI_BLUE("executor: future.isDone: ${future.isDone}").printlnAndLog()
+    colorConsole {
+      printLine {
+        span(Colors.Blue, "executor: future.isDone: ${future.isDone}")
+      }
+    }
     executor.awaitTermination(30, TimeUnit.SECONDS)
-    ANSI_BLUE("executor: future.isDone: ${future.isDone}").printlnAndLog()
+
+    colorConsole {
+      printLine {
+        span(Colors.Blue, "executor: future.isDone: ${future.isDone}")
+      }
+    }
     executor.shutdown()
   }
 
   @Test
   fun testEditorReplaceLink() {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+    }
 
     myFixture.configureByFile(TestFile.Input(getTestName(false)))
 

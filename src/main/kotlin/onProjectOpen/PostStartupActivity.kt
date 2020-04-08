@@ -16,9 +16,10 @@
 
 package onProjectOpen
 
+import ColorConsoleContext.Companion.colorConsole
+import Colors
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
-import printlnAndLog
 
 internal class PostStartupActivity : StartupActivity {
 
@@ -27,7 +28,11 @@ internal class PostStartupActivity : StartupActivity {
    * [More info](https://tinyurl.com/ufd64mk)
    */
   override fun runActivity(project: Project) {
-    "onProjectOpen.PostStartupActivity runActivity()".printlnAndLog()
+    colorConsole {
+      printLine {
+        span(Colors.Cyan, "onProjectOpen.PostStartupActivity runActivity()")
+      }
+    }
     FileManagerLightService.getInstance(project).init()
   }
 }

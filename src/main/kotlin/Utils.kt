@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import ColorConsoleContext.Companion.colorConsole
 import Colors.*
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
@@ -21,12 +22,27 @@ import com.intellij.notification.NotificationListener.UrlOpeningListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager.getApplication
 import services.LogService
+import java.text.SimpleDateFormat
+import java.util.*
 
 fun sleep(durationMs: Long = 100) {
   val formattedDuration = "%.3f sec".format(durationMs / 1000f)
-  ANSI_YELLOW(whichThread() + ANSI_RED(" sleeping for $formattedDuration 😴")).printlnAndLog()
+
+  colorConsole {
+    printLine {
+      printWhichThread()
+      span(Blue, " sleeping for $formattedDuration 😴")
+    }
+  }
+
   Thread.sleep(durationMs)
-  ANSI_YELLOW(whichThread() + ANSI_BLUE(" awake 😳")).printlnAndLog()
+
+  colorConsole {
+    printLine {
+      printWhichThread()
+      span(Green, " awake 😳")
+    }
+  }
 }
 
 fun longSleep() {
@@ -37,14 +53,9 @@ fun shortSleep() {
   sleep(20)
 }
 
-fun printDebugHeader() {
-  val stackTrace = Thread.currentThread().stackTrace[2]
-  ANSI_PURPLE("${stackTrace.className}.${stackTrace.methodName}()").printlnAndLog()
-}
-
 fun String.printlnAndLog() {
   log()
-  println(ANSI_CYAN("MyPlugin: ") + this)
+  println(Cyan("MyPlugin: ") + this)
 }
 
 /**
@@ -85,34 +96,109 @@ fun Pair<String, String>.notify() = com.intellij.notification
                          UrlOpeningListener(true)))
 
 /**
- * [ApplicationManager.getApplication#isDispatchThread] is equivalent to calling
- * [java.awt.EventQueue.isDispatchThread].
+ * DSL to print colorized console output. Here are examples of how to use this:
+ * ```
+ * fun main() {
+ *   colorConsole {//this: ColorConsoleContext
+ *     printLine {//this: MutableList<String>
+ *       span(Purple, "word1")
+ *       span("word2")
+ *       span(Blue, "word3")
+ *     }
+ *     printLine {//this: MutableList<String>
+ *       span(Green, "word1")
+ *       span(Purple, "word2")
+ *     }
+ *     println(
+ *         line {//this: MutableList<String>
+ *           add(Green("word1"))
+ *           add(Blue("word2"))
+ *         })
+ *   }
+ * }
+ * ```
  */
-fun whichThread() = buildString {
-  append(
-      when {
-        getApplication().isDispatchThread -> Colors.ANSI_RED("Running on EDT")
-        else                              -> Colors.ANSI_GREEN("Running on BGT")
+class ColorConsoleContext {
+  companion object {
+    fun colorConsole(block: ColorConsoleContext.() -> Unit) {
+      ColorConsoleContext().apply(block)
+    }
+
+    /**
+     * [ApplicationManager.getApplication#isDispatchThread] is equivalent to calling [java.awt.EventQueue.isDispatchThread].
+     */
+    fun whichThread() = buildString {
+      append(
+          when {
+            getApplication().isDispatchThread -> Colors.Red("Running on EDT")
+            else                              -> Colors.Green("Running on BGT")
+          }
+      )
+      append(
+          " - ${Thread.currentThread().name.take(50)}..."
+      )
+    }
+  }
+
+  fun printLine(block: MutableList<String>.() -> Unit) {
+    println(line {
+      block(this)
+    })
+  }
+
+  fun line(block: MutableList<String>.() -> Unit): String {
+    val messageFragments = mutableListOf<String>()
+    block(messageFragments)
+    val timestamp = SimpleDateFormat("hh:mm:sa").format(Date())
+    return messageFragments.joinToString(separator = ", ", prefix = "$timestamp: ")
+  }
+
+  /**
+   * Appends all arguments to the given [MutableList].
+   */
+  fun MutableList<String>.span(color: Colors, text: String): MutableList<String> {
+    add(color.ansiCode + text + ANSI_RESET.ansiCode)
+    return this
+  }
+
+  /**
+   * Appends all arguments to the given [MutableList].
+   */
+  fun MutableList<String>.span(text: String): MutableList<String> {
+    add(text + ANSI_RESET.ansiCode)
+    return this
+  }
+
+  fun printDebugHeader() {
+    val stackTrace = Thread.currentThread().stackTrace[2]
+    colorConsole {
+      printLine {
+        span(Cyan, "[${stackTrace.className}]")
+        span(Yellow, "${stackTrace.methodName}()")
       }
-  )
-  append(
-      " - ${Thread.currentThread().name.take(50)}..."
-  )
+    }
+  }
+
+  fun printWhichThread() {
+    colorConsole {
+      printLine {
+        span(whichThread())
+      }
+    }
+  }
 }
 
-/**
- * https://github.com/fusesource/jansi
- */
+/** https://github.com/fusesource/jansi */
 enum class Colors(val ansiCode: String) {
   ANSI_RESET("\u001B[0m"),
-  ANSI_BLACK("\u001B[30m"),
-  ANSI_RED("\u001B[31m"),
-  ANSI_GREEN("\u001B[32m"),
-  ANSI_YELLOW("\u001B[33m"),
-  ANSI_BLUE("\u001B[34m"),
-  ANSI_PURPLE("\u001B[35m"),
-  ANSI_CYAN("\u001B[36m"),
-  ANSI_WHITE("\u001B[37m");
+  Black("\u001B[30m"),
+  Red("\u001B[31m"),
+  Green("\u001B[32m"),
+  Yellow("\u001B[33m"),
+  Blue("\u001B[34m"),
+  Purple("\u001B[35m"),
+  Cyan("\u001B[36m"),
+  White("\u001B[37m");
 
   operator fun invoke(content: String): String {
     return "${ansiCode}$content${ANSI_RESET.ansiCode}"
@@ -121,43 +207,4 @@ enum class Colors(val ansiCode: String) {
   operator fun invoke(content: StringBuilder): StringBuilder {
     return StringBuilder("${ansiCode}$content${ANSI_RESET.ansiCode}")
   }
-}
-
-/**
- * This colorizes console log output. Make sure to install [ANSI Highlighter
- * Plugin](https://plugins.jetbrains.com/plugin/9707-ansi-highlighter/) in IDEA.
- */
-enum class ConsoleColors(private val color: String) {
-  ANSI_RESET("\u001B[0m"),
-  ANSI_BLACK("\u001B[30m"),
-  ANSI_RED("\u001B[31m"),
-  ANSI_GREEN("\u001B[32m"),
-  ANSI_YELLOW("\u001B[33m"),
-  ANSI_BLUE("\u001B[34m"),
-  ANSI_PURPLE("\u001B[35m"),
-  ANSI_CYAN("\u001B[36m"),
-  ANSI_WHITE("\u001B[37m");
-
-  override fun toString(): String {
-    return color
-  }
-
-  companion object {
-    /**
-     * Print a colorized string to [System.out]. In pseudocode, it does this:
-     *
-     * `<firstColor>first:</firstColor>: args[0], args[1].., args[n]`.
-     *
-     * @param firstColor This color is only applied to the [first] string.
-     * @param first This is printed first w/ the provided [firstColor] w/ a ":" postfix.
-     * @param args These are printed w/ "space + comma" separation thereafter.
-     */
-    @JvmStatic
-    fun consoleLog(firstColor: ConsoleColors, first: String, vararg args: Any): String {
-      val remainder = if (args.isEmpty()) "" else args.joinToString(prefix = ": ", separator = ", ")
-      println(firstColor.toString() + first + ConsoleColors.ANSI_RESET + remainder)
-      return StringBuilder().append(first).append(remainder).append("\n").toString()
-    }
-  }
-
 }

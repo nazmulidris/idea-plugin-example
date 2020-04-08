@@ -16,15 +16,15 @@
 
 package services
 
-import Colors.ANSI_BLUE
+import ColorConsoleContext.Companion.colorConsole
+import ColorConsoleContext.Companion.whichThread
+import Colors
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import logWithoutHistory
-import printDebugHeader
 import printlnAndLog
-import whichThread
 import java.util.concurrent.CopyOnWriteArrayList
 
 @State(name = "LogServiceData", storages = [Storage("logServiceData.xml")])
@@ -88,8 +88,13 @@ object LogService : PersistentStateComponent<LogService.State> {
     val logMessages = stateLoadedFromPersistence
         .messageList
         .joinToString(separator = ",", prefix = "{", postfix = "}")
-    printDebugHeader()
-    ANSI_BLUE(logMessages).printlnAndLog()
+
+    colorConsole {
+      printDebugHeader()
+    }
+
+    Colors.Blue(logMessages).printlnAndLog()
+
     state = stateLoadedFromPersistence
   }
 

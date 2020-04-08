@@ -15,8 +15,8 @@
  */
 package ui
 
-import ConsoleColors
-import ConsoleColors.Companion.consoleLog
+import ColorConsoleContext.Companion.colorConsole
+import Colors
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.DialogWrapper
@@ -32,7 +32,12 @@ import javax.swing.JPanel
 class ShowDialogSampleAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
     val response = SampleDialogWrapper().showAndGet()
-    consoleLog(ConsoleColors.ANSI_PURPLE, "SampleDialogWrapper", "Response selected:${if (response) "Yes" else "No"}")
+    colorConsole {
+      printLine {
+        span(Colors.Purple, "SampleDialogWrapper")
+        span(Colors.Green, "Response selected:${if (response) "Yes" else "No"}")
+      }
+    }
   }
 }
 

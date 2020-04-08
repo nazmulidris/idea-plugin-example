@@ -15,8 +15,8 @@
  */
 package actions
 
-import Colors.ANSI_RED
-import Colors.ANSI_YELLOW
+import ColorConsoleContext.Companion.colorConsole
+import Colors
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -34,11 +34,8 @@ import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownParagraphImpl
-import printDebugHeader
-import printlnAndLog
 import psi.langSetContains
 import sleep
-import whichThread
 
 
 internal class EditorShowPSIInfo : AnAction() {
@@ -47,13 +44,16 @@ internal class EditorShowPSIInfo : AnAction() {
   private val count = Count()
 
   override fun actionPerformed(e: AnActionEvent) {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+    }
 
     val psiFile = e.getRequiredData(CommonDataKeys.PSI_FILE)
     val psiFileViewProvider = psiFile.viewProvider
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
     val editor = e.getRequiredData(CommonDataKeys.EDITOR)
-    val progressTitle = "Doing heavy PSI access"
+    val progressTitle = "🔥 Doing heavy PSI access 🔥"
 
     val task = object : Backgroundable(project, progressTitle) {
       override fun run(indicator: ProgressIndicator) {
@@ -78,8 +78,10 @@ internal class EditorShowPSIInfo : AnAction() {
                                  indicator: ProgressIndicator,
                                  editor: Editor
   ) {
-    printDebugHeader()
-    ANSI_YELLOW(whichThread()).printlnAndLog()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+    }
 
     indicator.isIndeterminate = true
 
@@ -88,23 +90,26 @@ internal class EditorShowPSIInfo : AnAction() {
     val message = buildString {
       append(langs.joinToString(prefix = "\n[", postfix = "]\n"))
       when {
-        langSetContains(langs, "Markdown") -> runReadAction {
-          append(navigateMarkdownTree(psiFile,
-                                      indicator,
-                                      project))
-        }
-        langSetContains(langs, "Java")     -> runReadAction {
-          append(navigateJavaTree(psiFile,
-                                  indicator,
-                                  project,
-                                  editor))
-        }
-        else                               -> append(ANSI_RED("No supported languages found"))
+        langSetContains(langs, "Markdown") ->
+          runReadAction {
+            append(navigateMarkdownTree(psiFile, indicator, project))
+          }
+        langSetContains(langs, "Java")     ->
+          runReadAction {
+            append(navigateJavaTree(psiFile, indicator, project, editor))
+          }
+        else                               ->
+          append(Colors.Red("No supported languages found"))
       }
       checkCancelled(indicator, project)
     }
 
-    message.printlnAndLog()
+    colorConsole {
+      printLine {
+        span(Colors.Cyan, message)
+      }
+    }
+
     ApplicationManager.getApplication().invokeLater {
       Messages.showMessageDialog(project, message, "PSI Info", null)
     }
@@ -116,7 +121,9 @@ internal class EditorShowPSIInfo : AnAction() {
                                project: Project,
                                editor: Editor
   ): String {
-    printDebugHeader()
+    colorConsole {
+      printDebugHeader()
+    }
 
     val offset = editor.caretModel.offset
     val element: PsiElement? = psiFile.findElementAt(offset)
@@ -168,8 +175,10 @@ internal class EditorShowPSIInfo : AnAction() {
   ): String {
     psiFile.accept(object : MarkdownRecursiveElementVisitor() {
       override fun visitLinkDestination(linkDestination: MarkdownLinkDestinationImpl) {
-        printDebugHeader()
-        ANSI_YELLOW(whichThread()).printlnAndLog()
+        colorConsole {
+          printDebugHeader()
+          printWhichThread()
+        }
 
         count.links++
         sleep()
@@ -181,8 +190,10 @@ internal class EditorShowPSIInfo : AnAction() {
       }
 
       override fun visitParagraph(paragraph: MarkdownParagraphImpl) {
-        printDebugHeader()
-        ANSI_YELLOW(whichThread()).printlnAndLog()
+        colorConsole {
+          printDebugHeader()
+          printWhichThread()
+        }
 
         count.paragraph++
         sleep()
@@ -194,8 +205,10 @@ internal class EditorShowPSIInfo : AnAction() {
       }
 
       override fun visitHeader(header: MarkdownHeaderImpl) {
-        printDebugHeader()
-        ANSI_YELLOW(whichThread()).printlnAndLog()
+        colorConsole {
+          printDebugHeader()
+          printWhichThread()
+        }
 
         count.header++
         sleep()
@@ -214,11 +227,17 @@ internal class EditorShowPSIInfo : AnAction() {
   private fun checkCancelled(indicator: ProgressIndicator,
                              project: Project
   ) {
-    printDebugHeader()
-    ANSI_YELLOW(whichThread()).printlnAndLog()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+    }
 
     if (indicator.isCanceled) {
-      ANSI_RED("Task was cancelled").printlnAndLog()
+      colorConsole {
+        printLine {
+          span(Colors.Red, "Task was cancelled")
+        }
+      }
       ApplicationManager
           .getApplication()
           .invokeLater {

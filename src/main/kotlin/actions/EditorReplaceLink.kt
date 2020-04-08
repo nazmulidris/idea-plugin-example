@@ -15,7 +15,8 @@
  */
 package actions
 
-import Colors.ANSI_RED
+import ColorConsoleContext.Companion.colorConsole
+import Colors
 import actions.EditorReplaceLink.RunningState.*
 import com.google.common.annotations.VisibleForTesting
 import com.intellij.ide.plugins.PluginManagerCore
@@ -33,15 +34,12 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import notify
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
-import printDebugHeader
-import printlnAndLog
 import psi.CheckCancelled
 import psi.findLink
 import psi.findParentElement
 import psi.replaceExistingLinkWith
 import urlshortenservice.ShortenUrlService
 import urlshortenservice.TinyUrl
-import whichThread
 import java.awt.datatransfer.StringSelection
 
 /**
@@ -61,19 +59,26 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
   private var myIndicator: ProgressIndicator? = null
 
   override fun actionPerformed(e: AnActionEvent) {
-    printDebugHeader()
+    colorConsole {
+      printWhichThread()
+      printDebugHeader()
+    }
 
     val editor = e.getRequiredData(CommonDataKeys.EDITOR)
     val psiFile = e.getRequiredData(CommonDataKeys.PSI_FILE)
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
-    val progressTitle = "Doing heavy PSI mutation"
+    val progressTitle = "🔥 Doing heavy PSI mutation 🔥"
 
     object : Task.Backgroundable(project, progressTitle) {
       var result: Boolean = false
 
       override fun run(indicator: ProgressIndicator) {
         if (PluginManagerCore.isUnitTestMode) {
-          ANSI_RED("🔥 Is in unit testing mode 🔥️").printlnAndLog()
+          colorConsole {
+            printLine {
+              span(Colors.Red, "🔥 Is in unit testing mode 🔥️")
+            }
+          }
           // Save a reference to this indicator for testing.
           myIndicator = indicator
         }
@@ -115,8 +120,10 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
    */
   @VisibleForTesting
   fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {
-    printDebugHeader()
-    ANSI_RED(whichThread()).printlnAndLog()
+    colorConsole {
+      printDebugHeader()
+      printWhichThread()
+    }
 
     // Acquire a read lock in order to find the link information.
     val linkNode = runReadAction {
@@ -140,7 +147,9 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     // - The lambda inside of this call runs in the EDT.
     WriteCommandAction.runWriteCommandAction(project) {
       if (!psiFile.isValid) return@runWriteCommandAction
-      ANSI_RED(whichThread()).printlnAndLog()
+      colorConsole {
+        printWhichThread()
+      }
       replaceExistingLinkWith(project, linkNode, checkCancelled)
     }
 
