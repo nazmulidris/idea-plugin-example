@@ -20,6 +20,7 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationListener.URL_OPENING_LISTENER
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ApplicationManager.getApplication
 import services.LogService
 import java.text.SimpleDateFormat
@@ -141,7 +142,7 @@ class ColorConsoleContext {
   }
 
   fun printLine(block: MutableList<String>.() -> Unit) {
-    if (isPluginInTestIDE()) {
+    if (isPluginInTestIDE() || isPluginInUnitTestMode()) {
       println(line {
         block(this)
       })
@@ -212,3 +213,5 @@ enum class Colors(val ansiCode: String) {
 }
 
 fun isPluginInTestIDE(): Boolean = System.getProperty("idea.is.internal")?.toBoolean() ?: false
+
+fun isPluginInUnitTestMode(): Boolean = ApplicationManager.getApplication().isUnitTestMode
