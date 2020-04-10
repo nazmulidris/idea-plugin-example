@@ -141,9 +141,11 @@ class ColorConsoleContext {
   }
 
   fun printLine(block: MutableList<String>.() -> Unit) {
-    println(line {
-      block(this)
-    })
+    if (isPluginInTestIDE()) {
+      println(line {
+        block(this)
+      })
+    }
   }
 
   fun line(block: MutableList<String>.() -> Unit): String {
@@ -208,3 +210,5 @@ enum class Colors(val ansiCode: String) {
     return StringBuilder("${ansiCode}$content${ANSI_RESET.ansiCode}")
   }
 }
+
+fun isPluginInTestIDE(): Boolean = System.getProperty("idea.is.internal")?.toBoolean() ?: false
