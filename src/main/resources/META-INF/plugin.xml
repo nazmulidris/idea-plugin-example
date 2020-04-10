@@ -22,6 +22,9 @@
     developerlife.com
   </vendor>
 
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="2020.1" until-build="2020.*" />
+
   <description><![CDATA[
     This sample plugin does the following things:
     <ol>
