@@ -60,16 +60,14 @@ fun String.printlnAndLog() {
 }
 
 /**
- * Write this to the idea.log file, located in:
- * $PROJECT_DIR/build/idea-sandbox/system/log
+ * Write this to the idea.log file, located in: $PROJECT_DIR/build/idea-sandbox/system/log
  */
 fun String.log() {
-  PluginManager.getLogger().info("MyPlugin: $this")
+  PluginManager.getLogger().info(Cyan("MyPlugin: ") + this)
 }
 
 /**
- * Write this to the idea.log file, located in:
- * $PROJECT_DIR/build/idea-sandbox/system/log
+ * Write this to the idea.log file, located in: $PROJECT_DIR/build/idea-sandbox/system/log
  */
 fun String.logWithHistory() {
   PluginManager.getLogger().info("MyPlugin: $this")
@@ -85,8 +83,7 @@ fun String.logWithoutHistory() {
 const val GROUP_DISPAY_ID = "MyPlugin.Group"
 
 /**
- * Generate a Notification in IDEA using the first (maps to title) and second
- * (maps to content) properties of the Pair.
+ * Generate a Notification in IDEA using the first (maps to title) and second (maps to content) properties of the Pair.
  */
 fun Pair<String, String>.notify() = com.intellij.notification
     .Notifications.Bus
@@ -97,7 +94,10 @@ fun Pair<String, String>.notify() = com.intellij.notification
                          URL_OPENING_LISTENER))
 
 /**
- * DSL to print colorized console output. Here are examples of how to use this:
+ * DSL to print colorized console output. `printLine` will write output to the console if it is running in test mode
+ * or it is running in a test IDE (plugin is being tested). Otherwise it will dump this output to the log.
+ *
+ * Here are examples of how to use this:
  * ```
  * fun main() {
  *   colorConsole {//this: ColorConsoleContext
@@ -146,6 +146,9 @@ class ColorConsoleContext {
       println(line {
         block(this)
       })
+    }
+    else {
+      line { block(this) }.log()
     }
   }
 
