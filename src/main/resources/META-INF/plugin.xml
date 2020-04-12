@@ -22,7 +22,12 @@
     developerlife.com
   </vendor>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <!--
+    More info: Please read http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html
+    ⚠️ Make sure that the numbers here sync with the numbers in the `build.gradle.kts` file:
+    `intelliJ { version = "... " }`. These have to be kept in sync, otherwise IDEA will refuse to install this plugin
+    complaining that it is not compatible.
+  -->
   <idea-version since-build="2020.1" until-build="2020.*" />
 
   <description><![CDATA[
@@ -37,6 +42,17 @@
       <li>Works with light services</li>
     </ol>
     ]]></description>
+
+  <!--
+    More info: https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_configuration_file.html
+    ⚠️ The text in `change-notes` is paired with the version from `build.gradle.kts` file. Every time this plugin code
+    is pushed into the JetBrains Plugin Marketplace, make sure to provide only the change notes for the current version.
+    JetBrains figures out how to correlate the notes for each version. Do not make the mistake that some other plugins
+    do of putting all the change notes from all the previous versions into this field.
+  -->
+  <change-notes>
+    Initial release of the plugin with action and bulk change listener.
+  </change-notes>
 
   <!-- Add application component. -->
   <application-components>
