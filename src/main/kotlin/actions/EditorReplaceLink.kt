@@ -116,7 +116,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
   /**
    * This function returns true when it executes successfully. If there is no work for this function to do then it
    * returns false. However, if the task is cancelled (when wrapped w/ a [Task.Backgroundable], then it will throw
-   * an exception (and aborts) when `checkCancelled.invoke()` is called.
+   * an exception (and aborts) when `checkCancelled?.invoke()` is called.
    */
   @VisibleForTesting
   fun doWorkInBackground(editor: Editor, psiFile: PsiFile, project: Project): Boolean {
@@ -129,7 +129,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
     val linkNode = runReadAction {
       val offset = editor.caretModel.offset
       val elementAtCaret: PsiElement? = psiFile.findElementAt(offset)
-      return@runReadAction findLink(elementAtCaret, psiFile, checkCancelled)
+      findLink(elementAtCaret, psiFile, checkCancelled)
     }
 
     checkCancelled?.invoke()
