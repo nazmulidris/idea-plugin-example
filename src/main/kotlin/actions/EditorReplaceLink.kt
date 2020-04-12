@@ -19,7 +19,6 @@ import ColorConsoleContext.Companion.colorConsole
 import Colors
 import actions.EditorReplaceLink.RunningState.*
 import com.google.common.annotations.VisibleForTesting
-import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -32,6 +31,7 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import isPluginInUnitTestMode
 import notify
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
 import psi.CheckCancelled
@@ -73,7 +73,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
       var result: Boolean = false
 
       override fun run(indicator: ProgressIndicator) {
-        if (PluginManagerCore.isUnitTestMode) {
+        if (isPluginInUnitTestMode()) {
           colorConsole {
             printLine {
               span(Colors.Red, "🔥 Is in unit testing mode 🔥️")
