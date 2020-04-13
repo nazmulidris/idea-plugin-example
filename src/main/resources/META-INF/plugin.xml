@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<idea-plugin>
+<idea-plugin url="http://github.com/nazmulidris/idea-plugin-example">
   <!-- Namespace of this plugin. Used in extensions and extension points. -->
   <id>com.developerlife.example.idea-plugin-example</id>
   <name>developerlife example</name>
@@ -152,6 +152,12 @@
   <depends>org.intellij.plugins.markdown</depends>
   <!--  Built in modules: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html-->
   <depends>com.intellij.modules.java</depends>
+  <!--
+    ⚠️ Declare dependency on IntelliJ module `com.intellij.modules.platform` which provides the following:
+    Messaging, UI Themes, UI Components, Files, Documents, Actions, Components, Services, Extensions, Editors
+    💡 More info: https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+  -->
+  <depends>com.intellij.modules.platform</depends>
 
   <!-- Create a group for UI actions. -->
   <actions>
