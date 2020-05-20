@@ -20,6 +20,8 @@ import Colors
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.ServiceManager.getService
@@ -40,7 +42,42 @@ import kotlin.reflect.KProperty
 
 class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
+    // Modality before showing dialog.
+    colorConsole {
+      val currentModality = ModalityState.current()
+      printLine {
+        span(Colors.Yellow, "Modality BEFORE showing dialog")
+        span(Colors.Green, currentModality.toString())
+      }
+    }
+
+    ApplicationManager.getApplication().invokeLater(
+        { showToast(title = "Modality ${ModalityState.any()}", message = "any(): Runnable A executing") },
+        ModalityState.any()
+    )
+
+    ApplicationManager.getApplication().invokeLater(
+        { showToast(title = "Modality ${ModalityState.current()}", message = "current(): Runnable B executing") },
+        ModalityState.current()
+    )
+
+    ApplicationManager.getApplication().invokeLater(
+        { showToast(title = "Modality ${ModalityState.NON_MODAL}", message = "NON_MODAL: Runnable B' executing") },
+        ModalityState.NON_MODAL
+    )
+
+    // Show the dialog.
     val response = MyDialogWrapper().showAndGet()
+
+    // Modality after showing dialog.
+    colorConsole {
+      val currentModality = ModalityState.current()
+      printLine {
+        span(Colors.Yellow, "Modality AFTER showing dialog")
+        span(Colors.Green, currentModality.toString())
+      }
+    }
+
     colorConsole {
       printLine {
         span(Colors.Purple, "MyDialogWrapper")
@@ -101,12 +138,38 @@ fun createDialogPanel(): DialogPanel {
       comboBox(comboBoxModel, instance.myState::myStringChoice)
     }
 
-    noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
+    // Modality before showing dialog.
+    colorConsole {
+      val currentModality = ModalityState.current()
+      printLine {
+        span(Colors.Yellow, "Modality BEFORE showing dialog")
+        span(Colors.Green, currentModality.toString())
+      }
+    }
+
+    noteRow("""Note with a <a href="http://github.com">link</a>. Click the link to see modality.""") {
       colorConsole {
         printLine {
           span(Colors.Purple, "link url: '$it' clicked")
         }
       }
+
+      // Modality during showing dialog.
+      colorConsole {
+        val currentModality = ModalityState.current()
+        printLine {
+          span(Colors.Yellow, "Modality DURING showing dialog")
+          span(Colors.Green, currentModality.toString())
+        }
+      }
+      ApplicationManager.getApplication().invokeLater(
+          { showToast(title = "Modality ${ModalityState.current()}", message = "current(): Runnable C executing") },
+          ModalityState.current()
+      )
+      ApplicationManager.getApplication().invokeLater(
+          { showToast(title = "Modality ${ModalityState.NON_MODAL}", message = "current(): Runnable D executing") },
+          ModalityState.NON_MODAL
+      )
       BrowserUtil.browse(it)
     }
   }

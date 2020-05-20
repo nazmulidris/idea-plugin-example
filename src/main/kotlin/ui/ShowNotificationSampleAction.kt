@@ -20,13 +20,14 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 
+private val GROUP_DISPAY_ID = "UI Samples"
+private val messageTitle = "Title of notification"
+private val messageDetails = "Details of notification"
+
 /**
    * [Docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/notifications.html).
  */
 class ShowNotificationSampleAction : AnAction() {
-  private val GROUP_DISPAY_ID = "UI Samples"
-  private val messageTitle = "Title of notification"
-  private val messageDetails = "Details of notification"
 
   override fun actionPerformed(e: AnActionEvent) {
     aNotification()
@@ -60,4 +61,13 @@ class ShowNotificationSampleAction : AnAction() {
                                     NotificationType.INFORMATION)
     Notifications.Bus.notify(notification)
   }
+}
+
+/** Utility function. */
+fun showToast(title: String = "Title", message: String = "Message" ) {
+  val notification = Notification(GROUP_DISPAY_ID,
+                                  "1 .$title",
+                                  "1 .$message",
+                                  NotificationType.INFORMATION)
+  Notifications.Bus.notify(notification)
 }
