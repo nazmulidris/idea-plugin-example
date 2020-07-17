@@ -28,13 +28,14 @@ import printlnAndLog
 import java.util.concurrent.CopyOnWriteArrayList
 
 @State(name = "LogServiceData", storages = [Storage("logServiceData.xml")])
-object LogService : PersistentStateComponent<LogService.State> {
-  /**
-   * This is used by IDEA to get a reference to the single instance of this
-   * service (used by [ServiceManager]).
-   */
-  val instance: LogService
-    get() = ServiceManager.getService(LogService::class.java)
+class LogService : PersistentStateComponent<LogService.State> {
+  companion object {
+    /**
+     * This is used by IDEA to get a reference to the single instance of this service (used by [ServiceManager]).
+     */
+    val instance: LogService
+      get() = ServiceManager.getService(LogService::class.java)
+  }
 
   fun addMessage(message: String) {
     with(state.messageList) {
@@ -65,14 +66,10 @@ object LogService : PersistentStateComponent<LogService.State> {
 
   private var state = State()
 
-  data class State(
-      var messageList: MutableList<String> =
-          CopyOnWriteArrayList()
-  )
+  data class State(var messageList: MutableList<String> = CopyOnWriteArrayList())
 
   /**
-   * Called by IDEA to get the current state of this service, so that it can
-   * be saved to persistence.
+   * Called by IDEA to get the current state of this service, so that it can be saved to persistence.
    */
   override fun getState(): State {
     "IDEA called getState()".logWithoutHistory()
@@ -80,8 +77,8 @@ object LogService : PersistentStateComponent<LogService.State> {
   }
 
   /**
-   * Called by IDEA when new component state is loaded. This state object should
-   * be used directly, defensive copying is not required.
+   * Called by IDEA when new component state is loaded. This state object should be used directly, defensive copying is
+   * not required.
    */
   override fun loadState(stateLoadedFromPersistence: State) {
     "IDEA called loadState(stateLoadedFromPersistence)".logWithoutHistory()

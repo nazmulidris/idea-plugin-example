@@ -54,13 +54,10 @@
     Initial release of the plugin with action and bulk change listener.
   </change-notes>
 
-  <!-- Add application component. -->
-  <application-components>
-    <component>
-      <implementation-class>extensionPoints.ConfiguratorComponent
-      </implementation-class>
-    </component>
-  </application-components>
+  <!-- Add post startup activity to load extensions for our custom extension point. -->
+  <extensions defaultExtensionNs="com.intellij">
+    <postStartupActivity implementation="extensionPoints.ConfiguratorStartupActivity" />
+  </extensions>
 
   <!-- Extension point for the application component above. -->
   <extensionPoints>

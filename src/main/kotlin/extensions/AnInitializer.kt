@@ -20,8 +20,7 @@ import logWithHistory
 import notify
 
 /**
- * Simply implements an extension named "configuratorRunnable" which has an
- * interface of Runnable.
+ * Simply implements an extension named "configuratorRunnable" which has an interface of Runnable.
  */
 class AnInitializer : Runnable {
   override fun run() {
