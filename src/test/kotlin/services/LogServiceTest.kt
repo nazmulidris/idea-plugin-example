@@ -22,11 +22,9 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Here's an example of writing plugin tests from jetbrains.org website that
- * shows how to use [BasePlatformTestCase] and its [CodeInsightTestFixture]
- * property [myFixture] (which is used to load files into the IDE and
- * interrogate it) -
- * [https://www.jetbrains.org/intellij/sdk/docs/tutorials/writing_tests_for_plugins/completion_test.html]
+ * Here's an example of writing plugin tests from jetbrains.org website that shows how to use [BasePlatformTestCase] and
+ * its [CodeInsightTestFixture] property [myFixture] (which is used to load files into the IDE and interrogate it).
+ * [More info](https://www.jetbrains.org/intellij/sdk/docs/tutorials/writing_tests_for_plugins/completion_test.html)
  */
 class LogServiceTest : BasePlatformTestCase() {
 

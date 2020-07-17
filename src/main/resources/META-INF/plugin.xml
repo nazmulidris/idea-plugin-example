@@ -54,17 +54,17 @@
     Initial release of the plugin with action and bulk change listener.
   </change-notes>
 
-  <!-- Add application component. -->
-  <application-components>
-    <component>
-      <implementation-class>extensionPoints.ConfiguratorComponent
-      </implementation-class>
-    </component>
-  </application-components>
+  <!-- Add post startup activity to load extensions for our custom extension point. -->
+  <extensions defaultExtensionNs="com.intellij">
+    <postStartupActivity implementation="extensionPoints.ConfiguratorStartupActivity" />
+  </extensions>
 
-  <!-- Extension point for the application component above. -->
+  <!--
+    Extension point for the application component above.
+    More info: https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_extension_points.html?search=extension#dynamic-extension-points
+  -->
   <extensionPoints>
-    <extensionPoint name="configuratorRunnable" interface="java.lang.Runnable" />
+    <extensionPoint name="configuratorRunnable" interface="java.lang.Runnable" dynamic="true"/>
   </extensionPoints>
 
   <!-- Extensions that run when the application component above is initialized. -->
@@ -73,11 +73,6 @@
         id="MyPlugin.extensions.AnInitializer" />
     <configuratorRunnable order="last" implementation="extensions.AnotherInitializer"
         id="MyPlugin.extensions.AnotherInitializer" />
-  </extensions>
-
-  <!-- Extension to publish the LogService. -->
-  <extensions defaultExtensionNs="com.intellij">
-    <applicationService serviceImplementation="services.LogService" />
   </extensions>
 
   <!-- Add SearchOnStackOverflowAction to both the EditorPopupMenu and ConsoleEditorPopupMenu. -->
