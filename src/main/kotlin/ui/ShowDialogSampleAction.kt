@@ -47,6 +47,7 @@ class SampleDialogWrapper : DialogWrapper(true) {
     title = "Sample Dialog"
   }
 
+  // More info on layout managers: https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html
   override fun createCenterPanel(): JComponent {
     val panel = JPanel(BorderLayout())
     val label = JLabel("Press OK or Cancel")
