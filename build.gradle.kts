@@ -39,7 +39,7 @@ intellij {
   // You can use release build numbers or snapshot name for the version.
   // 1) IJ Release Repository w/ build numbers https://www.jetbrains.com/intellij-repository/releases/
   // 2) IJ Snapshots Repository w/ snapshot names https://www.jetbrains.com/intellij-repository/snapshots/
-  version = "2020.1" // You can also use LATEST-EAP-SNAPSHOT here.
+  version = "203.5251-EAP-CANDIDATE-SNAPSHOT" // You can also use LATEST-EAP-SNAPSHOT here.
 
   // "java"
   // Declare a dependency on the Java plugin to be able to do Java language PSI access.
@@ -48,10 +48,17 @@ intellij {
   //
   // "org.intellij.plugins.markdown"
   // Declare a dependency on the markdown plugin to be able to access the MarkdownRecursiveElementVisitor.kt file.
+  //
   // More info:
-  // https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
-  // https://plugins.jetbrains.com/plugin/7793-markdown/versions
-  setPlugins("java", "org.intellij.plugins.markdown:201.6668.27")
+  // IDEA snapshots: https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
+  // Markdown plugin snapshots: https://plugins.jetbrains.com/plugin/7793-markdown/versions
+  //
+  // The workflow to update to the latest version of IDEA and Markdown plugin goes something like this:
+  // 1. Find the latest Markdown plugin release from the link above, and insert it below (replacing whatever version is
+  //    there now). The webpage will also tell you which version of IDEA this is compatible w/.
+  // 2. Find the IDEA snapshot that is compatible w/ the Markdown plugin above (which probably won't be the latest EAP
+  //    snapshot). Replace the intellij.version (above) w/ this supported snapshot.
+  setPlugins("java", "org.intellij.plugins.markdown:203.5251.28")
 }
 
 tasks.withType<KotlinCompile> {
