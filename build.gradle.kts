@@ -38,7 +38,7 @@ intellij {
   // Information on IJ versions https://www.jetbrains.org/intellij/sdk/docs/reference_guide/intellij_artifacts.html
   // You can use release build numbers or snapshot name for the version.
   // 1) IJ Release Repository w/ build numbers https://www.jetbrains.com/intellij-repository/releases/
-  // 2) IJ Snapshots Repository w/ snapshot names https://www.jetbrains.com/intellij-repository/snapshots/
+  // 2) IJ EAP Snapshots Repository w/ snapshot names https://www.jetbrains.com/intellij-repository/snapshots/
   version = "203.5251-EAP-CANDIDATE-SNAPSHOT" // You can also use LATEST-EAP-SNAPSHOT here.
 
   // "java"
