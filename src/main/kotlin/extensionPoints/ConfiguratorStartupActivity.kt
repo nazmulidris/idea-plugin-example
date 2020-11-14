@@ -16,12 +16,12 @@
 
 package extensionPoints
 
-import ColorConsoleContext.Companion.whichThread
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import logWithHistory
 import notify
+import whichThread
 
 /**
  * Create an ExtensionPointName given the namespace of the plugin and the name of the extension point itself. Note that

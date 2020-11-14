@@ -15,8 +15,9 @@
  */
 package actions
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.Cyan
+import color_console_log.Colors.Red
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -34,6 +35,8 @@ import org.intellij.plugins.markdown.lang.psi.MarkdownRecursiveElementVisitor
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownHeaderImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestinationImpl
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownParagraphImpl
+import printDebugHeader
+import printWhichThread
 import psi.langSetContains
 import sleep
 
@@ -99,14 +102,14 @@ internal class EditorShowPSIInfo : AnAction() {
             append(navigateJavaTree(psiFile, indicator, project, editor))
           }
         else                               ->
-          append(Colors.Red("No supported languages found"))
+          append(Red("No supported languages found"))
       }
       checkCancelled(indicator, project)
     }
 
     colorConsole {
       printLine {
-        span(Colors.Cyan, message)
+        span(Cyan, message)
       }
     }
 
@@ -235,7 +238,7 @@ internal class EditorShowPSIInfo : AnAction() {
     if (indicator.isCanceled) {
       colorConsole {
         printLine {
-          span(Colors.Red, "Task was cancelled")
+          span(Red, "Task was cancelled")
         }
       }
       ApplicationManager

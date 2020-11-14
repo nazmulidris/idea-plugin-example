@@ -16,16 +16,17 @@
 
 package actions
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors
 import TestFile
 import TestUtils.Companion.computeBasePath
 import actions.EditorReplaceLink.RunningState.*
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.Blue
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
+import printDebugHeader
 import shortSleep
 import urlshortenservice.ShortenUrlService
 import java.awt.datatransfer.DataFlavor
@@ -84,7 +85,7 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
       while (true) {
         colorConsole {
           printLine {
-            span(Colors.Blue, "executor: isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}")
+            span(Blue, "executor: isRunning: ${action.isRunning()}, isCancelled: ${action.isCanceled()}")
           }
         }
         if (action.isRunning() == NOT_STARTED) {
@@ -109,14 +110,14 @@ class EditorReplaceLinkTest : BasePlatformTestCase() {
 
     colorConsole {
       printLine {
-        span(Colors.Blue, "executor: future.isDone: ${future.isDone}")
+        span(Blue, "executor: future.isDone: ${future.isDone}")
       }
     }
     executor.awaitTermination(30, TimeUnit.SECONDS)
 
     colorConsole {
       printLine {
-        span(Colors.Blue, "executor: future.isDone: ${future.isDone}")
+        span(Blue, "executor: future.isDone: ${future.isDone}")
       }
     }
     executor.shutdown()

@@ -15,8 +15,8 @@
  */
 package ui
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -46,8 +46,8 @@ class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
     colorConsole {
       val currentModality = ModalityState.current()
       printLine {
-        span(Colors.Yellow, "Modality BEFORE showing dialog")
-        span(Colors.Green, currentModality.toString())
+        span(Yellow, "Modality BEFORE showing dialog")
+        span(Green, currentModality.toString())
       }
     }
 
@@ -73,15 +73,15 @@ class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
     colorConsole {
       val currentModality = ModalityState.current()
       printLine {
-        span(Colors.Yellow, "Modality AFTER showing dialog")
-        span(Colors.Green, currentModality.toString())
+        span(Yellow, "Modality AFTER showing dialog")
+        span(Green, currentModality.toString())
       }
     }
 
     colorConsole {
       printLine {
-        span(Colors.Purple, "MyDialogWrapper")
-        span(Colors.Green, "Response selected:${if (response) "Yes" else "No"}")
+        span(Purple, "MyDialogWrapper")
+        span(Green, "Response selected:${if (response) "Yes" else "No"}")
       }
     }
   }
@@ -142,15 +142,15 @@ fun createDialogPanel(): DialogPanel {
     colorConsole {
       val currentModality = ModalityState.current()
       printLine {
-        span(Colors.Yellow, "Modality BEFORE showing dialog")
-        span(Colors.Green, currentModality.toString())
+        span(Yellow, "Modality BEFORE showing dialog")
+        span(Green, currentModality.toString())
       }
     }
 
     noteRow("""Note with a <a href="http://github.com">link</a>. Click the link to see modality.""") {
       colorConsole {
         printLine {
-          span(Colors.Purple, "link url: '$it' clicked")
+          span(Purple, "link url: '$it' clicked")
         }
       }
 
@@ -158,8 +158,8 @@ fun createDialogPanel(): DialogPanel {
       colorConsole {
         val currentModality = ModalityState.current()
         printLine {
-          span(Colors.Yellow, "Modality DURING showing dialog")
-          span(Colors.Green, currentModality.toString())
+          span(Yellow, "Modality DURING showing dialog")
+          span(Green, currentModality.toString())
         }
       }
       ApplicationManager.getApplication().invokeLater(
@@ -209,8 +209,8 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
   override fun getState(): State {
     colorConsole {
       printLine {
-        span(Colors.Purple, "KotlinDSLUISampleData.getState")
-        span(Colors.Green, "state: $myState")
+        span(Purple, "KotlinDSLUISampleData.getState")
+        span(Green, "state: $myState")
       }
     }
     return myState
@@ -219,8 +219,8 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
   override fun loadState(stateLoadedFromPersistence: State) {
     colorConsole {
       printLine {
-        span(Colors.Purple, "KotlinDSLUISampleData.loadState")
-        span(Colors.Green, "stateLoadedFromPersistence: $stateLoadedFromPersistence")
+        span(Purple, "KotlinDSLUISampleData.loadState")
+        span(Green, "stateLoadedFromPersistence: $stateLoadedFromPersistence")
       }
     }
     myState = stateLoadedFromPersistence
@@ -246,8 +246,8 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
       override fun getValue(thisRef: R, property: KProperty<*>): T {
         colorConsole {
           printLine {
-            span(Colors.Purple, "State::${property.name}.getValue()")
-            span(Colors.Green, "value: '$backingField'")
+            span(Purple, "State::${property.name}.getValue()")
+            span(Green, "value: '$backingField'")
           }
         }
         return backingField
@@ -257,8 +257,8 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
         backingField = value
         colorConsole {
           printLine {
-            span(Colors.Purple, "State::${property.name}.setValue()")
-            span(Colors.Green, "value: '$backingField'")
+            span(Purple, "State::${property.name}.setValue()")
+            span(Green, "value: '$backingField'")
           }
         }
       }

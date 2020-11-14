@@ -16,12 +16,13 @@
 
 package services
 
-import ColorConsoleContext.Companion.colorConsole
-import ColorConsoleContext.Companion.whichThread
-import Colors
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.Blue
 import com.intellij.openapi.components.*
 import logWithoutHistory
+import printDebugHeader
 import printlnAndLog
+import whichThread
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -87,7 +88,7 @@ class LogService : PersistentStateComponent<LogService.State> {
       printDebugHeader()
     }
 
-    Colors.Blue(logMessages).printlnAndLog()
+    Blue(logMessages).printlnAndLog()
 
     state = stateLoadedFromPersistence
   }

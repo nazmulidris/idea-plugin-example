@@ -15,9 +15,9 @@
  */
 package actions
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors
 import actions.EditorReplaceLink.RunningState.*
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.Red
 import com.google.common.annotations.VisibleForTesting
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -34,6 +34,8 @@ import com.intellij.psi.PsiFile
 import isPluginInUnitTestMode
 import notify
 import org.intellij.plugins.markdown.ui.actions.MarkdownActionUtil
+import printDebugHeader
+import printWhichThread
 import psi.CheckCancelled
 import psi.findLink
 import psi.findParentElement
@@ -76,7 +78,7 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
         if (isPluginInUnitTestMode()) {
           colorConsole {
             printLine {
-              span(Colors.Red, "🔥 Is in unit testing mode 🔥️")
+              span(Red, "🔥 Is in unit testing mode 🔥️")
             }
           }
           // Save a reference to this indicator for testing.

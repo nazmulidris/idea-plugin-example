@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors.*
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.*
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationListener.URL_OPENING_LISTENER
@@ -23,8 +23,39 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ApplicationManager.getApplication
 import services.LogService
-import java.text.SimpleDateFormat
-import java.util.*
+
+fun printWhichThread() {
+  colorConsole {
+    printLine {
+      span(whichThread())
+    }
+  }
+}
+
+/**
+ * [ApplicationManager.getApplication#isDispatchThread] is equivalent to calling [java.awt.EventQueue.isDispatchThread].
+ */
+fun whichThread() = buildString {
+  append(
+      when {
+        getApplication().isDispatchThread -> Red("Running on EDT")
+        else                              -> Green("Running on BGT")
+      }
+  )
+  append(
+      " - ${Thread.currentThread().name.take(50)}..."
+  )
+}
+
+fun printDebugHeader() {
+  val stackTrace = Thread.currentThread().stackTrace[2]
+  colorConsole {
+    printLine {
+      span(Cyan, "[${stackTrace.className}]")
+      span(Yellow, "${stackTrace.methodName}()")
+    }
+  }
+}
 
 fun sleep(durationMs: Long = 100) {
   val formattedDuration = "%.3f sec".format(durationMs / 1000f)
@@ -92,128 +123,6 @@ fun Pair<String, String>.notify() = com.intellij.notification
                          second,
                          NotificationType.INFORMATION,
                          URL_OPENING_LISTENER))
-
-/**
- * DSL to print colorized console output. `printLine` will write output to the console if it is running in test mode
- * or it is running in a test IDE (plugin is being tested). Otherwise it will dump this output to the log.
- *
- * Here are examples of how to use this:
- * ```
- * fun main() {
- *   colorConsole {//this: ColorConsoleContext
- *     printLine {//this: MutableList<String>
- *       span(Purple, "word1")
- *       span("word2")
- *       span(Blue, "word3")
- *     }
- *     printLine {//this: MutableList<String>
- *       span(Green, "word1")
- *       span(Purple, "word2")
- *     }
- *     println(
- *         line {//this: MutableList<String>
- *           add(Green("word1"))
- *           add(Blue("word2"))
- *         })
- *   }
- * }
- * ```
- */
-class ColorConsoleContext {
-  companion object {
-    fun colorConsole(block: ColorConsoleContext.() -> Unit) {
-      ColorConsoleContext().apply(block)
-    }
-
-    /**
-     * [ApplicationManager.getApplication#isDispatchThread] is equivalent to calling [java.awt.EventQueue.isDispatchThread].
-     */
-    fun whichThread() = buildString {
-      append(
-          when {
-            getApplication().isDispatchThread -> Colors.Red("Running on EDT")
-            else                              -> Colors.Green("Running on BGT")
-          }
-      )
-      append(
-          " - ${Thread.currentThread().name.take(50)}..."
-      )
-    }
-  }
-
-  fun printLine(block: MutableList<String>.() -> Unit) {
-    if (isPluginInTestIDE() || isPluginInUnitTestMode()) {
-      println(line {
-        block(this)
-      })
-    }
-    else {
-      line { block(this) }.log()
-    }
-  }
-
-  fun line(block: MutableList<String>.() -> Unit): String {
-    val messageFragments = mutableListOf<String>()
-    block(messageFragments)
-    val timestamp = SimpleDateFormat("hh:mm:sa").format(Date())
-    return messageFragments.joinToString(separator = ", ", prefix = "$timestamp: ")
-  }
-
-  /**
-   * Appends all arguments to the given [MutableList].
-   */
-  fun MutableList<String>.span(color: Colors, text: String): MutableList<String> {
-    add(color.ansiCode + text + ANSI_RESET.ansiCode)
-    return this
-  }
-
-  /**
-   * Appends all arguments to the given [MutableList].
-   */
-  fun MutableList<String>.span(text: String): MutableList<String> {
-    add(text + ANSI_RESET.ansiCode)
-    return this
-  }
-
-  fun printDebugHeader() {
-    val stackTrace = Thread.currentThread().stackTrace[2]
-    colorConsole {
-      printLine {
-        span(Cyan, "[${stackTrace.className}]")
-        span(Yellow, "${stackTrace.methodName}()")
-      }
-    }
-  }
-
-  fun printWhichThread() {
-    colorConsole {
-      printLine {
-        span(whichThread())
-      }
-    }
-  }
-}
-
-/** https://github.com/fusesource/jansi */
-enum class Colors(val ansiCode: String) {
-  ANSI_RESET("\u001B[0m"),
-  Black("\u001B[30m"),
-  Red("\u001B[31m"),
-  Green("\u001B[32m"),
-  Yellow("\u001B[33m"),
-  Blue("\u001B[34m"),
-  Purple("\u001B[35m"),
-  Cyan("\u001B[36m"),
-  White("\u001B[37m");
-
-  operator fun invoke(content: String): String {
-    return "${ansiCode}$content${ANSI_RESET.ansiCode}"
-  }
-
-  operator fun invoke(content: StringBuilder): StringBuilder {
-    return StringBuilder("${ansiCode}$content${ANSI_RESET.ansiCode}")
-  }
-}
 
 fun isPluginInTestIDE(): Boolean = System.getProperty("idea.is.internal")?.toBoolean() ?: false
 

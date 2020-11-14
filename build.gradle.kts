@@ -73,3 +73,12 @@ dependencies {
   testImplementation("org.assertj:assertj-core:3.11.1")
   testImplementation("junit:junit:4.13")
 }
+
+// Import color-console library.
+repositories {
+  jcenter()
+}
+
+dependencies {
+  implementation("com.developerlife:color-console:1.0")
+}

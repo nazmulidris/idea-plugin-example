@@ -16,8 +16,8 @@
 
 package onProjectOpen
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors.*
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.*
 import com.intellij.AppTopics
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.WriteCommandAction
@@ -43,6 +43,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
+import printDebugHeader
+import printWhichThread
 import psi.*
 import ui.KotlinDSLUISampleService
 import urlshortenservice.ShortenUrlService

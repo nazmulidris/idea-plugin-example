@@ -15,8 +15,9 @@
  */
 package ui
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.Green
+import color_console_log.Colors.Purple
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -46,8 +47,8 @@ class ShowPopupSampleAction : AnAction() {
               .setItemChosenCallback {
                 colorConsole {
                   printLine {
-                    span(Colors.Purple, "PopupChooserBuilder.onChosen")
-                    span(Colors.Green, it.toString())
+                    span(Purple, "PopupChooserBuilder.onChosen")
+                    span(Green, it.toString())
                   }
                 }
               }
@@ -70,8 +71,8 @@ class MyList(val onChosenHandler: (String) -> Unit) : BaseListPopupStep<String>(
   override fun onChosen(selectedValue: String, finalChoice: Boolean): PopupStep<*>? {
     colorConsole {
       printLine {
-        span(Colors.Purple, "MyList.onChosen")
-        span(Colors.Green, selectedValue.toString())
+        span(Purple, "MyList.onChosen")
+        span(Green, selectedValue.toString())
       }
     }
     onChosenHandler(selectedValue)

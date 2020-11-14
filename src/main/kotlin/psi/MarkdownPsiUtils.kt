@@ -16,8 +16,8 @@
 
 package psi
 
-import ColorConsoleContext.Companion.colorConsole
-import Colors
+import color_console_log.ColorConsoleContext.Companion.colorConsole
+import color_console_log.Colors.*
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressIndicator
@@ -33,6 +33,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets
 import org.intellij.plugins.markdown.lang.MarkdownTokenTypes
 import org.intellij.plugins.markdown.lang.psi.MarkdownPsiElementFactory
+import printDebugHeader
+import printWhichThread
 
 /**
  * Both parameters are marked Nullable for testing. In unit tests, a class of this object is not created.
@@ -48,14 +50,14 @@ class CheckCancelled(private val indicator: ProgressIndicator?, private val proj
     colorConsole {
       printWhichThread()
       printLine {
-        span(Colors.Yellow, "Checking for cancellation")
+        span(Yellow, "Checking for cancellation")
       }
     }
 
     if (indicator.isCanceled) {
       colorConsole {
         printLine {
-          span(Colors.Red, "Task was cancelled")
+          span(Red, "Task was cancelled")
         }
       }
       ApplicationManager
@@ -185,8 +187,8 @@ fun findLink(element: PsiElement?, psiFile: PsiFile, checkCancelled: CheckCancel
 
   colorConsole {
     printLine {
-      span(Colors.Green, "Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉")
-      span(Colors.Green, "linkText: $linkText, linkDest: $linkDestination")
+      span(Green, "Top level element of type contained in MarkdownTokenTypeSets.LINKS found! 🎉")
+      span(Green, "linkText: $linkText, linkDest: $linkDestination")
     }
   }
   return LinkNode(parentLinkElement, linkText, linkDestination)

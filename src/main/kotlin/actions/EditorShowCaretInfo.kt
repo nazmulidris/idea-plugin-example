@@ -15,13 +15,15 @@
  */
 package actions
 
-import ColorConsoleContext.Companion.colorConsole
+import color_console_log.ColorConsoleContext.Companion.colorConsole
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.editor.*
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.ui.Messages
+import printDebugHeader
+import printWhichThread
 import java.awt.datatransfer.StringSelection
 
 class EditorShowCaretInfo : AnAction() {
