@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Caret
 import com.intellij.openapi.editor.CaretModel
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
@@ -45,19 +46,17 @@ class EditorReplaceTextAction : AnAction() {
     val project: Project = e.getRequiredData(CommonDataKeys.PROJECT)
     val document: Document = editor.document
     val caretModel: CaretModel = editor.caretModel
-    val primaryCaret = caretModel.primaryCaret
+    val primaryCaret: Caret = caretModel.primaryCaret
 
     // start and end offsets of the selected text (based on the primaryCaret).
-    val selection =
-        Pair(primaryCaret.selectionStart, primaryCaret.selectionEnd)
+    val selection: Pair<Int, Int> = Pair(primaryCaret.selectionStart, primaryCaret.selectionEnd)
 
     // Actual content that is selected at the caret.
     val selectedText: String = primaryCaret.selectedText!!
 
     // Change the document in a write action in a command (for undo).
     WriteCommandAction.runWriteCommandAction(project) {
-      document.replaceString(selection.first, selection.second,
-                             ">> $selectedText <<")
+      document.replaceString(selection.first, selection.second, ">> $selectedText <<")
     }
 
     // Deselect the selection of the text that that was just replaced.

@@ -15,10 +15,11 @@
  */
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 
 plugins {
-  id("org.jetbrains.intellij") version "0.4.10"
-  kotlin("jvm") version "1.3.50"
+  id("org.jetbrains.intellij") version "0.6.4"
+  kotlin("jvm") version "1.4.20"
 }
 
 group = "com.developerlife.example"
@@ -29,7 +30,7 @@ repositories {
 }
 
 dependencies {
-  implementation(kotlin("stdlib-jdk8"))
+  implementation(kotlin("stdlib"))
   implementation(kotlin("reflect"))
 }
 
@@ -39,7 +40,7 @@ intellij {
   // You can use release build numbers or snapshot name for the version.
   // 1) IJ Release Repository w/ build numbers https://www.jetbrains.com/intellij-repository/releases/
   // 2) IJ EAP Snapshots Repository w/ snapshot names https://www.jetbrains.com/intellij-repository/snapshots/
-  version = "203.5251-EAP-CANDIDATE-SNAPSHOT" // You can also use LATEST-EAP-SNAPSHOT here.
+  version = "203.5981-EAP-CANDIDATE-SNAPSHOT" // You can also use LATEST-EAP-SNAPSHOT here.
 
   // "java"
   // Declare a dependency on the Java plugin to be able to do Java language PSI access.
@@ -50,7 +51,8 @@ intellij {
   // Declare a dependency on the markdown plugin to be able to access the MarkdownRecursiveElementVisitor.kt file.
   //
   // More info:
-  // IDEA snapshots: https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
+  // JB docs on plugin dependencies: https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
+  // IDEA snapshots: https://www.jetbrains.com/intellij-repository/snapshots/
   // Markdown plugin snapshots: https://plugins.jetbrains.com/plugin/7793-markdown/versions
   //
   // The workflow to update to the latest version of IDEA and Markdown plugin goes something like this:
@@ -58,11 +60,34 @@ intellij {
   //    there now). The webpage will also tell you which version of IDEA this is compatible w/.
   // 2. Find the IDEA snapshot that is compatible w/ the Markdown plugin above (which probably won't be the latest EAP
   //    snapshot). Replace the intellij.version (above) w/ this supported snapshot.
-  setPlugins("java", "org.intellij.plugins.markdown:203.5251.28")
+  setPlugins("java", "markdown")
 }
 
-tasks.withType<KotlinCompile> {
-  kotlinOptions.jvmTarget = "1.8"
+// See https://github.com/JetBrains/gradle-intellij-plugin#plugin-verifier-dsl
+// See https://data.services.jetbrains.com/products?fields=code,name,releases.version,releases.build,releases.type&code=IIC,IIU
+tasks {
+  runPluginVerifier {
+    ideVersions(listOf<String>("2020.1.4", "2020.2.3", "2020.3"))
+  }
+}
+
+tasks {
+  compileKotlin {
+    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.languageVersion = "1.4"
+    kotlinOptions.apiVersion = "1.4"
+  }
+  compileTestKotlin {
+    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.languageVersion = "1.4"
+    kotlinOptions.apiVersion = "1.4"
+  }
+}
+
+tasks {
+  buildSearchableOptions {
+    enabled = false
+  }
 }
 
 // Testing with JUnit4 and AssertJ.

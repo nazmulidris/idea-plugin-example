@@ -120,7 +120,7 @@ fun findChildElement(element: PsiElement?, tokenSet: TokenSet, checkCancelled: C
   return processor.foundElement
 }
 
-fun findChildElement(element: PsiElement?, token: IElementType?, checkCancelled: CheckCancelled?): PsiElement? {
+fun findChildElement(element: PsiElement?, token: IElementType, checkCancelled: CheckCancelled?): PsiElement? {
   return findChildElement(element, TokenSet.create(token), checkCancelled)
 }
 

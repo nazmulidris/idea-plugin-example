@@ -25,7 +25,7 @@ folder, eg: `/icons/ic_check_circle.svg`
  */
 interface PluginIcons {
   val HELLO_ACTION: Icon
-    get() = IconLoader.getIcon("/icons/ic_check_circle.svg")
+    get() = IconLoader.getIcon("/icons/ic_check_circle.svg", javaClass)
   val STACKOVERFLOW_ACTION: Icon
-    get() = IconLoader.getIcon("/icons/ic_stackoverflow.svg")
+    get() = IconLoader.getIcon("/icons/ic_stackoverflow.svg", javaClass)
 }

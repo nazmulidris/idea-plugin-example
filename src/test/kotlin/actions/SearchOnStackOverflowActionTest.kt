@@ -28,7 +28,7 @@ class SearchOnStackOverflowActionTest : BasePlatformTestCase() {
   @Before
   public override fun setUp() {
     super.setUp()
-    assertThat(testDataPath).isNotNull()
+    assertThat(testDataPath).isNotNull
   }
 
   override fun getTestDataPath(): String = computeBasePath
@@ -50,6 +50,6 @@ class SearchOnStackOverflowActionTest : BasePlatformTestCase() {
     assertThat(presentation.isEnabledAndVisible).isTrue()
 
     assertThat(selectedText).isEqualTo("jetbrains sdk plugin testing")
-    assertThat(langTag).isEqualTo("+[markdown+]")
+    assertThat(langTag).isEqualTo("+[plain text+]")
   }
 }
