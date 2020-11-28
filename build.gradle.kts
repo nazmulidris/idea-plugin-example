@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 
 plugins {
-  id("org.jetbrains.intellij") version "0.6.4"
+  id("org.jetbrains.intellij") version "0.6.5"
   kotlin("jvm") version "1.4.20"
 }
 
