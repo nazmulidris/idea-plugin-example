@@ -20,6 +20,7 @@ import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 plugins {
   id("org.jetbrains.intellij") version "0.6.5"
   kotlin("jvm") version "1.4.20"
+  id("maven")
 }
 
 group = "com.developerlife.example"
@@ -101,7 +102,15 @@ dependencies {
 
 // Import color-console library.
 repositories {
-  jcenter()
+  maven {
+    name = "GitHubPackages"
+    url = uri("https://maven.pkg.github.com/nazmulidris/color-console")
+    credentials {
+      username = System.getenv("GITHUB_PACKAGES_USERID") ?: "nazmulidris"
+      // Safe to share the password since it is a `read:package` scoped token.
+      password = System.getenv("GITHUB_PACKAGES_IMPORT_TOKEN") ?: "22e9ba0d47c3e9116a2f1023867a1985beebfb60"
+    }
+  }
 }
 
 dependencies {
