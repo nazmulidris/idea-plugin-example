@@ -35,6 +35,14 @@ dependencies {
   implementation(kotlin("reflect"))
 }
 
+// Enable the new Kotlin IR JVM Backend
+// More info: https://blog.jetbrains.com/kotlin/2021/02/the-jvm-backend-is-in-beta-let-s-make-it-stable-together/
+tasks.withType<KotlinCompile>().configureEach {
+  kotlinOptions {
+    useIR = true
+  }
+}
+
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
   // Information on IJ versions https://www.jetbrains.org/intellij/sdk/docs/reference_guide/intellij_artifacts.html
