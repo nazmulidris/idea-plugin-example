@@ -110,17 +110,12 @@ dependencies {
 
 // Import color-console library.
 repositories {
-  maven {
-    name = "GitHubPackages"
-    url = uri("https://maven.pkg.github.com/nazmulidris/color-console")
-    credentials {
-      username = System.getenv("GITHUB_PACKAGES_USERID") ?: "nazmulidris"
-      // Safe to share the password since it is a `read:package` scoped token.
-      password = System.getenv("GITHUB_PACKAGES_IMPORT_TOKEN") ?: "22e9ba0d47c3e9116a2f1023867a1985beebfb60"
-    }
+  maven{
+    url = uri("https://jitpack.io")
   }
 }
 
 dependencies {
-  implementation("com.developerlife:color-console:1.0")
+  implementation ("com.github.nazmulidris:color-console:1.0.0")
 }
+
