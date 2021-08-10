@@ -49,7 +49,7 @@ intellij {
   // You can use release build numbers or snapshot name for the version.
   // 1) IJ Release Repository w/ build numbers https://www.jetbrains.com/intellij-repository/releases/
   // 2) IJ EAP Snapshots Repository w/ snapshot names https://www.jetbrains.com/intellij-repository/snapshots/
-  version = "203.5981-EAP-CANDIDATE-SNAPSHOT" // You can also use LATEST-EAP-SNAPSHOT here.
+  version = "LATEST-EAP-SNAPSHOT" // You can also use LATEST-EAP-SNAPSHOT here.
 
   // "java"
   // Declare a dependency on the Java plugin to be able to do Java language PSI access.
